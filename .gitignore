@@ -1,0 +1,15 @@
+# Secrets — KHÔNG commit (chứa Client Secret / token Shopify)
+.mcp.json
+.env
+.env.local
+*.secret
+# File secret Shopify (chỉ giữ bản .example)
+shopify-secret.json
+**/shopify-secret.json
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db

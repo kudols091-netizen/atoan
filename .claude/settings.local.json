@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p d:/Vscode/Luminouswand/.claude/skills)",
+      "Bash(cp -r C:/Users/ADMIN/.claude/skills/. d:/Vscode/Luminouswand/.claude/skills/)",
+      "PowerShell(Write-Output \\(\"node: \" + \\(& node --version 2>$null\\)\\); Write-Output \\(\"npm: \" + \\(& npm --version 2>$null\\)\\); Write-Output \\(\"npx path: \" + \\(Get-Command npx -ErrorAction SilentlyContinue\\).Source\\))",
+      "PowerShell(Write-Output \\(\"shopify-mcp latest: \" + \\(& npm view shopify-mcp version 2>$null\\)\\))",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p1.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p2.json\")",
+      "PowerShell(shutdown /a)",
+      "PowerShell(shutdown /s /t 300 /c \"Tu dong tat may theo yeu cau - 5 phut\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p3.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p4.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p5.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p6.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p7.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_alt.ps1\" -AltsFile \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/alts_p7b.json\")",
+      "PowerShell(& \"C:/Users/ADMIN/AppData/Local/Temp/claude/d--Vscode-Luminouswand/05a41865-e293-4911-bef7-1b9452c78e04/scratchpad/apply_seo.ps1\")"
+    ]
+  }
+}
