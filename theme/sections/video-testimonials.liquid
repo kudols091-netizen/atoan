@@ -48,7 +48,7 @@
     color: inherit;
   }
 
-  /* The script look: italics typed in the theme editor become the accent word. */
+  /* The script look: words italicised in the theme editor become the accent. */
   .vt__heading em {
     font-family: var(--vt-script);
     font-style: normal;
@@ -83,8 +83,35 @@
 
   .vt__wrap {
     position: relative;
-    margin-top: 34px;
+    margin-top: 30px;
   }
+
+  .vt__bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+
+  .vt__halt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 2px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1;
+    opacity: 0.65;
+    cursor: pointer;
+  }
+
+  .vt__halt:hover { opacity: 1; }
+  .vt__halt:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: 2px; }
+  .vt__halt svg { display: block; width: 12px; height: 12px; }
+  .vt__halt-icon--resume { display: none; }
+  .vt.is-halted .vt__halt-icon--pause { display: none; }
+  .vt.is-halted .vt__halt-icon--resume { display: block; }
 
   .vt__strip {
     display: flex;
@@ -125,27 +152,21 @@
   .vt__poster {
     position: absolute;
     inset: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 250ms ease;
   }
 
-  /* Covers the whole card so the tap target is big, while the visible badge
-     stays in the corner the way the reference does it. */
-  .vt__play {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    transition: opacity 200ms ease;
+  .vt__card.is-started .vt__poster {
+    opacity: 0;
+    pointer-events: none;
   }
 
-  .vt__play-badge {
+  /* Badge is a sibling of the hit area, not a child, so the hit area can shrink
+     out from under it once the clip is playing with sound. */
+  .vt__badge {
     position: absolute;
     top: 12px;
     right: 12px;
+    z-index: 3;
     display: grid;
     place-items: center;
     width: 28px;
@@ -154,21 +175,43 @@
     background: #ffffff;
     color: #111111;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.28);
-  }
-
-  .vt__play-badge svg { width: 11px; height: 11px; display: block; }
-  .vt__play:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: -3px; }
-
-  .vt__card.is-playing .vt__poster,
-  .vt__card.is-playing .vt__play {
-    opacity: 0;
     pointer-events: none;
   }
+
+  .vt__badge svg { width: 13px; height: 13px; display: none; }
+  .vt__badge .vt__icon--play { display: block; }
+
+  .vt__card.is-started .vt__icon--play,
+  .vt__card.is-loud .vt__icon--play { display: none; }
+  .vt__card.is-started.is-muted .vt__icon--muted { display: block; }
+  .vt__card.is-loud .vt__icon--sound { display: block; }
+
+  /* Muted and ambient: the whole card unmutes. Playing with sound: the hit area
+     collapses to the badge so the native controls underneath are reachable. */
+  .vt__toggle {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .vt__card.is-loud .vt__toggle {
+    inset: 0 0 auto auto;
+    width: 52px;
+    height: 52px;
+  }
+
+  .vt__toggle:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: -3px; }
 
   .vt__nav {
     position: absolute;
     top: 50%;
-    z-index: 2;
+    z-index: 4;
     display: none;
     align-items: center;
     justify-content: center;
@@ -227,16 +270,32 @@
     {%- endif -%}
 
     <div class="vt__wrap">
+      {%- if section.settings.show_halt -%}
+        <div class="vt__bar">
+          <button type="button" class="vt__halt" data-vt-halt aria-pressed="false">
+            <svg class="vt__halt-icon vt__halt-icon--pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" focusable="false">
+              <rect x="1.5" y="1" width="3" height="10" rx="0.8"/>
+              <rect x="7.5" y="1" width="3" height="10" rx="0.8"/>
+            </svg>
+            <svg class="vt__halt-icon vt__halt-icon--resume" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" focusable="false">
+              <path d="M2.5 1.2l8 4.8-8 4.8z"/>
+            </svg>
+            <span data-vt-halt-label>{{ 'Pause videos' }}</span>
+          </button>
+        </div>
+      {%- endif -%}
+
       <div class="vt__strip" data-vt-strip>
         {%- for block in section.blocks -%}
           <div class="vt__slide" data-vt-slide {{ block.shopify_attributes }}>
-            <div class="vt__card" data-vt-card>
+            <div class="vt__card is-muted" data-vt-card>
               {%- if block.settings.video != blank -%}
                 {{
                   block.settings.video
                   | video_tag:
                     image_size: '640x',
-                    controls: true,
+                    loop: true,
+                    muted: true,
                     preload: 'none'
                 }}
 
@@ -257,13 +316,26 @@
                   }}
                 {%- endif -%}
 
-                <button type="button" class="vt__play" data-vt-play aria-label="{{ 'Play this customer video' | escape }}">
-                  <span class="vt__play-badge" aria-hidden="true">
-                    <svg viewBox="0 0 12 12" fill="currentColor" focusable="false">
-                      <path d="M2.5 1.2l8 4.8-8 4.8z"/>
-                    </svg>
-                  </span>
-                </button>
+                <span class="vt__badge" aria-hidden="true">
+                  <svg class="vt__icon vt__icon--play" viewBox="0 0 12 12" fill="currentColor" focusable="false">
+                    <path d="M2.5 1.2l8 4.8-8 4.8z"/>
+                  </svg>
+                  <svg class="vt__icon vt__icon--muted" viewBox="0 0 14 14" fill="none" focusable="false">
+                    <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
+                    <path d="M9.2 5.2l3 3.6M12.2 5.2l-3 3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                  <svg class="vt__icon vt__icon--sound" viewBox="0 0 14 14" fill="none" focusable="false">
+                    <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
+                    <path d="M9.1 5.1a2.7 2.7 0 010 3.8M11 3.2a5.3 5.3 0 010 7.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                </span>
+
+                <button
+                  type="button"
+                  class="vt__toggle"
+                  data-vt-toggle
+                  aria-label="{{ 'Turn on sound for this video' | escape }}"
+                ></button>
               {%- else -%}
                 {{ 'lifestyle-2' | placeholder_svg_tag }}
               {%- endif -%}
@@ -296,40 +368,136 @@
     var strip = root.querySelector('[data-vt-strip]');
     var prevBtn = root.querySelector('[data-vt-prev]');
     var nextBtn = root.querySelector('[data-vt-next]');
+    var haltBtn = root.querySelector('[data-vt-halt]');
+    var haltLabel = root.querySelector('[data-vt-halt-label]');
     if (!strip) return;
 
     var cards = Array.prototype.slice.call(root.querySelectorAll('[data-vt-card]'));
+    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var connection = navigator.connection || {};
 
-    /* ---------- play ---------- */
+    // Someone who asked for less motion, or who is paying per megabyte, should
+    // not get six clips rolling on their own. They get a play button instead.
+    function ambientAllowed() {
+      return !motionQuery.matches && connection.saveData !== true;
+    }
 
-    cards.forEach(function (card) {
-      var button = card.querySelector('[data-vt-play]');
+    var halted = false;
+
+    /* ---------- sound ---------- */
+
+    function silence(card) {
+      var video = card.querySelector('video');
+      if (!video) return;
+      video.muted = true;
+      video.controls = false;
+      card.classList.add('is-muted');
+      card.classList.remove('is-loud');
+      label(card);
+    }
+
+    function label(card) {
+      var button = card.querySelector('[data-vt-toggle]');
       var video = card.querySelector('video');
       if (!button || !video) return;
+      button.setAttribute(
+        'aria-label',
+        video.muted ? 'Turn on sound for this video' : 'Mute this video'
+      );
+    }
+
+    /* ---------- playback ---------- */
+
+    function attemptPlay(card) {
+      var video = card.querySelector('video');
+      if (!video) return;
+
+      var started = video.play();
+      if (!started || typeof started.catch !== 'function') return;
+
+      started.catch(function () {
+        // Browsers only grant autoplay to muted video. If an unmuted resume was
+        // refused, drop back to muted and try once more rather than freeze.
+        if (video.muted) return;
+        silence(card);
+        var retry = video.play();
+        if (retry && typeof retry.catch === 'function') retry.catch(function () {});
+      });
+    }
+
+    function syncCard(card) {
+      var video = card.querySelector('video');
+      if (!video) return;
+
+      var wanted = card.dataset.vtVisible === '1' && !halted && ambientAllowed();
+
+      if (wanted) {
+        if (video.paused) attemptPlay(card);
+      } else if (!video.paused) {
+        video.pause();
+        silence(card);
+      }
+    }
+
+    cards.forEach(function (card) {
+      var video = card.querySelector('video');
+      var button = card.querySelector('[data-vt-toggle]');
+      if (!video || !button) return;
+
+      video.muted = true;
+      video.setAttribute('muted', 'muted');
+      card.dataset.vtVisible = '0';
+
+      video.addEventListener('playing', function () { card.classList.add('is-started'); });
 
       button.addEventListener('click', function () {
         // A drag that finishes over a card still fires a click. Ignore it.
         if (strip.dataset.vtDragged === 'true') return;
 
-        cards.forEach(function (other) {
-          if (other === card) return;
-          var otherVideo = other.querySelector('video');
-          if (otherVideo && !otherVideo.paused) otherVideo.pause();
-        });
-
-        card.classList.add('is-playing');
-        video.setAttribute('preload', 'auto');
-
-        var started = video.play();
-        if (started && typeof started.catch === 'function') {
-          started.catch(function () {
-            // Autoplay policies can refuse a muted-less play on some browsers.
-            // Put the poster back so the card never looks broken.
-            card.classList.remove('is-playing');
-          });
+        if (video.muted) {
+          cards.forEach(function (other) { if (other !== card) silence(other); });
+          video.muted = false;
+          video.controls = true;
+          card.classList.remove('is-muted');
+          card.classList.add('is-loud');
+          label(card);
+          if (video.paused) attemptPlay(card);
+        } else {
+          silence(card);
         }
       });
+
+      label(card);
     });
+
+    /* ---------- play only what is on screen ---------- */
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          entry.target.dataset.vtVisible = entry.isIntersecting ? '1' : '0';
+          syncCard(entry.target);
+        });
+      }, { threshold: 0.35 });
+
+      cards.forEach(function (card) { observer.observe(card); });
+    }
+
+    if (motionQuery.addEventListener) {
+      motionQuery.addEventListener('change', function () { cards.forEach(syncCard); });
+    }
+
+    /* ---------- pause everything ---------- */
+
+    if (haltBtn) {
+      haltBtn.addEventListener('click', function () {
+        halted = !halted;
+        root.classList.toggle('is-halted', halted);
+        haltBtn.setAttribute('aria-pressed', halted ? 'true' : 'false');
+        if (haltLabel) haltLabel.textContent = halted ? 'Play videos' : 'Pause videos';
+        cards.forEach(syncCard);
+      });
+    }
 
     /* ---------- drag to scroll ---------- */
 
@@ -364,8 +532,8 @@
       if (drag === null || event.pointerId !== drag.id) return;
       drag = null;
       strip.classList.remove('is-dragging');
-      // Cleared on the next frame so the click that follows this pointerup
-      // still sees the flag and gets swallowed.
+      // Cleared two frames later so the click that follows this pointerup still
+      // sees the flag and gets swallowed.
       requestAnimationFrame(function () {
         requestAnimationFrame(function () { strip.dataset.vtDragged = 'false'; });
       });
@@ -384,19 +552,17 @@
       return slide.getBoundingClientRect().width + gap;
     }
 
-    function syncArrows() {
-      var max = strip.scrollWidth - strip.clientWidth;
-      if (prevBtn) prevBtn.hidden = strip.scrollLeft <= 1;
-      if (nextBtn) nextBtn.hidden = strip.scrollLeft >= max - 1;
-    }
-
-    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-
     function nudge(direction) {
       strip.scrollBy({
         left: direction * stepSize(),
         behavior: motionQuery.matches ? 'auto' : 'smooth'
       });
+    }
+
+    function syncArrows() {
+      var max = strip.scrollWidth - strip.clientWidth;
+      if (prevBtn) prevBtn.hidden = strip.scrollLeft <= 1;
+      if (nextBtn) nextBtn.hidden = strip.scrollLeft >= max - 1;
     }
 
     if (prevBtn) prevBtn.addEventListener('click', function () { nudge(-1); });
@@ -497,6 +663,13 @@
       "default": true
     },
     {
+      "type": "checkbox",
+      "id": "show_halt",
+      "label": "Show the pause control",
+      "info": "Clips start on their own, so accessibility rules require a way to stop them. Leave this on.",
+      "default": true
+    },
+    {
       "type": "header",
       "content": "Colors"
     },
@@ -574,7 +747,7 @@
           "type": "image_picker",
           "id": "poster",
           "label": "Cover image",
-          "info": "Optional. Without one, Shopify uses a frame from the video."
+          "info": "Optional. Shown for the moment before the clip starts."
         }
       ]
     }
