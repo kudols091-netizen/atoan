@@ -1,0 +1,350 @@
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --zz-bg: {{ section.settings.bg_color | default: '#ffffff' }};
+    --zz-heading: {{ section.settings.heading_color | default: '#2b2b2b' }};
+    --zz-body: {{ section.settings.body_color | default: '#5c5651' }};
+    --zz-btn-bg: {{ section.settings.button_bg | default: '#2b2b2b' }};
+    --zz-btn-text: {{ section.settings.button_text_color | default: '#ffffff' }};
+    --zz-ratio: {{ section.settings.image_ratio | default: '3 / 2' }};
+    --zz-radius: {{ section.settings.image_radius }}px;
+    --zz-row-gap: {{ section.settings.row_gap }}px;
+    --zz-pad-top: {{ section.settings.padding_top }}px;
+    --zz-pad-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  .zz {
+    background: var(--zz-bg);
+    padding-top: calc(var(--zz-pad-top) * 0.7);
+    padding-bottom: calc(var(--zz-pad-bottom) * 0.7);
+  }
+
+  .zz__inner {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .zz__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .zz__row + .zz__row { margin-top: 52px; }
+
+  .zz__media {
+    overflow: hidden;
+    border-radius: var(--zz-radius);
+    background: #eeeae6;
+    aspect-ratio: var(--zz-ratio);
+  }
+
+  .zz__media img,
+  .zz__media svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .zz__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .zz__text {
+    max-width: 540px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .zz--left .zz__text { text-align: left; margin-left: 0; }
+
+  .zz__heading {
+    margin: 0 0 14px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--zz-heading);
+  }
+
+  .zz__body {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--zz-body);
+  }
+
+  .zz__body > *:first-child { margin-top: 0; }
+  .zz__body > *:last-child { margin-bottom: 0; }
+
+  .zz__button {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 15px 28px;
+    border-radius: 6px;
+    background: var(--zz-btn-bg);
+    color: var(--zz-btn-text);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .zz__button:hover { color: var(--zz-btn-text); opacity: 0.88; }
+
+  @media screen and (min-width: 990px) {
+    .zz {
+      padding-top: var(--zz-pad-top);
+      padding-bottom: var(--zz-pad-bottom);
+    }
+
+    /* No column gap on purpose: the image runs to the middle of the row and the
+       breathing room comes from the padding on the text side instead. */
+    .zz__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      align-items: center;
+    }
+
+    .zz__row + .zz__row { margin-top: var(--zz-row-gap); }
+
+    .zz__content { padding: 0 60px; }
+    .zz__heading { font-size: 42px; margin-bottom: 16px; }
+
+    /* Every other row swaps sides. Mobile keeps image-then-text throughout,
+       because alternating there just reads as an inconsistent layout. */
+    .zz__row:nth-child(even) .zz__media { order: 2; }
+    .zz--flip .zz__row:nth-child(even) .zz__media { order: 0; }
+    .zz--flip .zz__row:nth-child(odd) .zz__media { order: 2; }
+  }
+{%- endstyle -%}
+
+<div
+  class="zz{% if section.settings.text_align == 'left' %} zz--left{% endif %}{% if section.settings.first_image_side == 'right' %} zz--flip{% endif %}"
+>
+  <div class="zz__inner">
+    {%- for block in section.blocks -%}
+      <div class="zz__row" {{ block.shopify_attributes }}>
+        <div class="zz__media">
+          {%- if block.settings.image != blank -%}
+            {%- assign row_alt = block.settings.image.alt -%}
+            {%- if row_alt == blank -%}
+              {%- assign row_alt = block.settings.heading | strip_html -%}
+            {%- endif -%}
+            {{
+              block.settings.image
+              | image_url: width: 1300
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 800, 1000, 1300',
+                sizes: '(min-width: 990px) 650px, calc(100vw - 40px)',
+                alt: row_alt
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag }}
+          {%- endif -%}
+        </div>
+
+        <div class="zz__content">
+          <div class="zz__text">
+            {%- if block.settings.heading != blank -%}
+              <h3 class="zz__heading">{{ block.settings.heading }}</h3>
+            {%- endif -%}
+
+            {%- if block.settings.body != blank -%}
+              <div class="zz__body">{{ block.settings.body }}</div>
+            {%- endif -%}
+
+            {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+              <a class="zz__button" href="{{ block.settings.button_link }}">
+                {{- block.settings.button_label | escape -}}
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image with text rows",
+  "tag": "section",
+  "class": "image-text-rows-section",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "select",
+      "id": "first_image_side",
+      "label": "First row puts the image on the",
+      "info": "Rows after that alternate on their own.",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        { "value": "center", "label": "Centred" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "3 / 2", "label": "Landscape (3:2)" },
+        { "value": "4 / 3", "label": "Landscape (4:3)" },
+        { "value": "16 / 9", "label": "Wide (16:9)" },
+        { "value": "1 / 1", "label": "Square (1:1)" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" }
+      ],
+      "default": "3 / 2"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#2b2b2b"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body text",
+      "default": "#5c5651"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#2b2b2b"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "label": "Space between rows",
+      "info": "Desktop only. Mobile always uses a wider gap so stacked rows stay separable.",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Row",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Tell them one thing"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Text",
+          "default": "<p>Two or three sentences. One idea per row reads better than a paragraph that tries to cover everything.</p>"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "info": "Optional. The button only appears once both the label and the link are filled in."
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with text rows",
+      "blocks": [
+        {
+          "type": "row",
+          "settings": {
+            "heading": "Crafted with Love, One Stitch at a Time",
+            "body": "<p>Every doll is worked by hand, stitch by stitch — no machines, no moulds. The small differences between one piece and the next are the mark of a real maker's hands, not a flaw.</p>"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "heading": "Made to Order, Never Mass Produced",
+            "body": "<p>Nothing sits in a warehouse waiting. Your doll is started after you order it, in the size and colours you picked, then packed and sent straight to you.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
