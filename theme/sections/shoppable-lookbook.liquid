@@ -1,0 +1,738 @@
+{%- liquid
+  assign link_label = section.settings.link_label | default: 'Show Details'
+  assign pulse_class = ''
+  unless section.settings.enable_pulse
+    assign pulse_class = ' sl--no-pulse'
+  endunless
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --sl-bg: {{ section.settings.bg_color | default: '#ffffff' }};
+    --sl-text: {{ section.settings.text_color | default: '#111111' }};
+    --sl-ratio: {{ section.settings.image_ratio | default: '1 / 1' }};
+    --sl-cols: {{ section.settings.columns_desktop | default: 3 }};
+    --sl-pad-top: {{ section.settings.padding_top }}px;
+    --sl-pad-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  .sl {
+    background: var(--sl-bg);
+    color: var(--sl-text);
+    padding-top: calc(var(--sl-pad-top) * 0.7);
+    padding-bottom: calc(var(--sl-pad-bottom) * 0.7);
+    overflow-x: clip;
+  }
+
+  .sl__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .sl__heading {
+    margin: 0 0 24px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    color: inherit;
+  }
+
+  .sl__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .sl__item {
+    position: relative;
+  }
+
+  .sl__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: var(--sl-ratio);
+    background: #f2f0ed;
+  }
+
+  .sl__media img,
+  .sl__media svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------- hotspot ---------- */
+
+  .sl__hotspot {
+    position: absolute;
+    left: var(--sl-x);
+    top: var(--sl-y);
+    width: 0;
+    height: 0;
+    z-index: 2;
+  }
+
+  .sl__hotspot.is-open {
+    z-index: 6;
+  }
+
+  .sl__pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border-radius: 50%;
+    background: #ffffff;
+    pointer-events: none;
+    animation: sl-pulse 2200ms ease-out infinite;
+  }
+
+  @keyframes sl-pulse {
+    0% { transform: scale(1); opacity: 0.55; }
+    70% { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  .sl--no-pulse .sl__pulse { display: none; }
+
+  .sl__dot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: transform 150ms ease;
+  }
+
+  .sl__dot:hover { transform: translate(-50%, -50%) scale(1.12); }
+  .sl__dot:focus-visible { outline: 2px solid var(--sl-text); outline-offset: 3px; }
+  .sl__dot svg { display: block; width: 14px; height: 14px; }
+
+  /* ---------- card ---------- */
+
+  .sl__card {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    width: 250px;
+    max-width: 80vw;
+    padding: 16px;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #111111;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(calc(-50% + var(--sl-shift, 0px))) translateY(6px);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .sl__hotspot.is-open .sl__card {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(calc(-50% + var(--sl-shift, 0px))) translateY(0);
+  }
+
+  .sl__hotspot.is-below .sl__card {
+    bottom: auto;
+    top: 26px;
+  }
+
+  .sl__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #6b6b6b;
+    cursor: pointer;
+  }
+
+  .sl__close:hover { color: #111111; }
+  .sl__close:focus-visible { outline: 2px solid #111111; outline-offset: 1px; }
+  .sl__close svg { display: block; width: 12px; height: 12px; }
+
+  .sl__card-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .sl__thumb {
+    flex: 0 0 70px;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #f4f4f4;
+  }
+
+  .sl__thumb img,
+  .sl__thumb svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .sl__info {
+    min-width: 0;
+    padding-right: 14px;
+  }
+
+  .sl__title {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #111111;
+    text-decoration: none;
+  }
+
+  .sl__title:hover { color: #111111; text-decoration: underline; }
+
+  .sl__price {
+    display: block;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.3;
+    color: #111111;
+  }
+
+  .sl__price-was {
+    margin-left: 6px;
+    color: #8a8a8a;
+    font-size: 13px;
+  }
+
+  .sl__price--soldout { color: #8a8a8a; }
+
+  .sl__link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #111111;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sl__link:hover { color: #111111; }
+
+  /* ---------- desktop ---------- */
+
+  @media screen and (min-width: 750px) {
+    .sl {
+      padding-top: var(--sl-pad-top);
+      padding-bottom: var(--sl-pad-bottom);
+    }
+
+    .sl__grid { grid-template-columns: repeat(var(--sl-cols), minmax(0, 1fr)); }
+    .sl__heading { font-size: 34px; margin-bottom: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sl__pulse { display: none; }
+    .sl__dot { transition: none; }
+    .sl__card { transition: none; }
+  }
+{%- endstyle -%}
+
+<div class="sl{{ pulse_class }}" id="SlLookbook-{{ section.id }}" data-sl-root data-sl-auto-open="{{ section.settings.auto_open_first }}">
+  <div class="sl__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="sl__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    <div class="sl__grid">
+      {%- for block in section.blocks -%}
+        <div class="sl__item" data-sl-item {{ block.shopify_attributes }}>
+          <div class="sl__media">
+            {%- if block.settings.image != blank -%}
+              {%- assign media_alt = block.settings.image.alt | default: 'Handmade crochet toy in a real home' -%}
+              {{
+                block.settings.image
+                | image_url: width: 1200
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '300, 450, 600, 800, 1000, 1200',
+                  sizes: '(min-width: 750px) calc((1400px - 32px) / 3), calc(100vw - 40px)',
+                  alt: media_alt
+              }}
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag }}
+            {%- endif -%}
+          </div>
+
+          {%- for i in (1..3) -%}
+            {%- liquid
+              assign product_key = 'product_' | append: i
+              assign x_key = 'pos_x_' | append: i
+              assign y_key = 'pos_y_' | append: i
+              assign hotspot_product = block.settings[product_key]
+            -%}
+
+            {%- if hotspot_product == blank -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            {%- if section.settings.hide_sold_out and hotspot_product.available == false -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            {%- liquid
+              assign pos_x = block.settings[x_key]
+              assign pos_y = block.settings[y_key]
+              assign card_id = 'SlCard-' | append: section.id | append: '-' | append: block.id | append: '-' | append: i
+              assign title_id = card_id | append: '-title'
+
+              assign on_sale = false
+              if hotspot_product.compare_at_price > hotspot_product.price
+                assign on_sale = true
+              endif
+            -%}
+
+            <div class="sl__hotspot" data-sl-hotspot style="--sl-x: {{ pos_x }}%; --sl-y: {{ pos_y }}%;">
+              <span class="sl__pulse" aria-hidden="true"></span>
+
+              <button
+                type="button"
+                class="sl__dot"
+                data-sl-dot
+                aria-expanded="false"
+                aria-controls="{{ card_id }}"
+                aria-label="{{ 'Show details for' | append: ' ' | append: hotspot_product.title | escape }}"
+              >
+                <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
+                  <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </button>
+
+              <div
+                class="sl__card"
+                id="{{ card_id }}"
+                data-sl-card
+                role="group"
+                aria-labelledby="{{ title_id }}"
+                aria-hidden="true"
+              >
+                <button type="button" class="sl__close" data-sl-close aria-label="{{ 'Close' | escape }}">
+                  <svg viewBox="0 0 12 12" fill="none" aria-hidden="true" focusable="false">
+                    <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </button>
+
+                <div class="sl__card-body">
+                  <a class="sl__thumb" href="{{ hotspot_product.url }}" tabindex="-1" aria-hidden="true">
+                    {%- if hotspot_product.featured_image != blank -%}
+                      {{
+                        hotspot_product.featured_image
+                        | image_url: width: 210
+                        | image_tag: loading: 'lazy', widths: '70, 140, 210', sizes: '70px', alt: ''
+                      }}
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    {%- endif -%}
+                  </a>
+
+                  <div class="sl__info">
+                    <a class="sl__title" id="{{ title_id }}" href="{{ hotspot_product.url }}">
+                      {{- hotspot_product.title -}}
+                    </a>
+
+                    {%- if hotspot_product.available == false -%}
+                      <span class="sl__price sl__price--soldout">Sold out</span>
+                    {%- elsif hotspot_product.price_varies -%}
+                      <span class="sl__price">From {{ hotspot_product.price_min | money }}</span>
+                    {%- else -%}
+                      <span class="sl__price">
+                        {{- hotspot_product.price | money -}}
+                        {%- if on_sale -%}
+                          <s class="sl__price-was">{{ hotspot_product.compare_at_price | money }}</s>
+                        {%- endif -%}
+                      </span>
+                    {%- endif -%}
+
+                    <a class="sl__link" href="{{ hotspot_product.url }}">{{ link_label }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('SlLookbook-{{ section.id }}');
+    if (!root || root.dataset.slInit === 'true') return;
+    root.dataset.slInit = 'true';
+
+    var hotspots = Array.prototype.slice.call(root.querySelectorAll('[data-sl-hotspot]'));
+    if (!hotspots.length) return;
+
+    function closeSpot(spot, refocus) {
+      spot.classList.remove('is-open', 'is-below');
+      var dot = spot.querySelector('[data-sl-dot]');
+      var card = spot.querySelector('[data-sl-card]');
+      if (dot) dot.setAttribute('aria-expanded', 'false');
+      if (card) card.setAttribute('aria-hidden', 'true');
+      if (refocus && dot) dot.focus({ preventScroll: true });
+    }
+
+    function closeEverything(refocus) {
+      var open = document.querySelectorAll('[data-sl-hotspot].is-open');
+      Array.prototype.forEach.call(open, function (spot) { closeSpot(spot, refocus); });
+    }
+
+    var CARD_OFFSET = 26;
+    var EDGE_PAD = 8;
+
+    function place(spot) {
+      var card = spot.querySelector('[data-sl-card]');
+      var item = spot.closest('[data-sl-item]');
+      if (!card || !item) return;
+
+      var bounds = item.getBoundingClientRect();
+      var rect = card.getBoundingClientRect();
+      var anchor = spot.getBoundingClientRect();
+
+      // The card is left:50% inside a zero-size anchor and then translated by
+      // -50% plus --sl-shift. Derive its unshifted box from the anchor instead
+      // of reading the rendered transform: a transform does not invalidate
+      // layout, so a rect read straight after writing --sl-shift can be stale
+      // and would make the clamp compound on itself.
+      var left = anchor.left - rect.width / 2;
+      var right = left + rect.width;
+      var shift = 0;
+
+      if (left < bounds.left + EDGE_PAD) {
+        shift = bounds.left + EDGE_PAD - left;
+      } else if (right > bounds.right - EDGE_PAD) {
+        shift = bounds.right - EDGE_PAD - right;
+      }
+
+      card.style.setProperty('--sl-shift', Math.round(shift) + 'px');
+
+      var topIfAbove = anchor.top - CARD_OFFSET - rect.height;
+      spot.classList.toggle('is-below', topIfAbove < bounds.top + EDGE_PAD);
+    }
+
+    function openSpot(spot, focusCard) {
+      closeEverything(false);
+      spot.classList.add('is-open');
+
+      var dot = spot.querySelector('[data-sl-dot]');
+      var card = spot.querySelector('[data-sl-card]');
+      if (dot) dot.setAttribute('aria-expanded', 'true');
+      if (card) card.setAttribute('aria-hidden', 'false');
+
+      place(spot);
+
+      if (focusCard && card) {
+        var closeBtn = card.querySelector('[data-sl-close]');
+        if (closeBtn) closeBtn.focus({ preventScroll: true });
+      }
+    }
+
+    hotspots.forEach(function (spot) {
+      var dot = spot.querySelector('[data-sl-dot]');
+      var closeBtn = spot.querySelector('[data-sl-close]');
+
+      if (dot) {
+        dot.addEventListener('click', function (event) {
+          event.stopPropagation();
+          if (spot.classList.contains('is-open')) {
+            closeSpot(spot, true);
+          } else {
+            openSpot(spot, true);
+          }
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function (event) {
+          event.stopPropagation();
+          closeSpot(spot, true);
+        });
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (event.target.closest && event.target.closest('[data-sl-hotspot]')) return;
+      closeEverything(false);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeEverything(true);
+    });
+
+    function placeAll() {
+      hotspots.forEach(place);
+    }
+
+    var raf = null;
+    window.addEventListener('resize', function () {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(placeAll);
+    });
+
+    placeAll();
+    if (document.readyState !== 'complete') window.addEventListener('load', placeAll);
+
+    if (root.dataset.slAutoOpen === 'true' && 'IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          openSpot(hotspots[0], false);
+          observer.disconnect();
+        });
+      }, { threshold: 0.4 });
+      observer.observe(root);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shoppable Lookbook",
+  "tag": "section",
+  "class": "sl-section",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Leave empty to show the images on their own."
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "1 / 1", "label": "Square (1:1)" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "16 / 10", "label": "Landscape (16:10)" }
+      ],
+      "default": "1 / 1"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Card link label",
+      "default": "Show Details"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_pulse",
+      "label": "Pulse the hotspot dots",
+      "info": "Helps shoppers notice the dots are clickable.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_open_first",
+      "label": "Open the first card automatically",
+      "info": "Opens once when the section scrolls into view. Off keeps the images clean.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_sold_out",
+      "label": "Hide hotspots for sold-out products",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading text",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "lookbook_image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Lifestyle image"
+        },
+        {
+          "type": "header",
+          "content": "Hotspot 1"
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "pos_x_1",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "pos_y_1",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 56
+        },
+        {
+          "type": "header",
+          "content": "Hotspot 2"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "pos_x_2",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 28
+        },
+        {
+          "type": "range",
+          "id": "pos_y_2",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 40
+        },
+        {
+          "type": "header",
+          "content": "Hotspot 3"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "pos_x_3",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 72
+        },
+        {
+          "type": "range",
+          "id": "pos_y_3",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 68
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable Lookbook",
+      "blocks": [
+        { "type": "lookbook_image" },
+        { "type": "lookbook_image" },
+        { "type": "lookbook_image" }
+      ]
+    }
+  ]
+}
+{% endschema %}
