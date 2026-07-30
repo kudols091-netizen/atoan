@@ -1,0 +1,554 @@
+{%- liquid
+  assign label_before = section.settings.label_before | default: 'Before'
+  assign label_after = section.settings.label_after | default: 'After'
+
+  assign alt_before = section.settings.image_before.alt
+  if alt_before == blank
+    assign alt_before = 'The original photo sent in by the customer'
+  endif
+
+  assign alt_after = section.settings.image_after.alt
+  if alt_after == blank
+    assign alt_after = 'The finished handmade crochet doll made from that photo'
+  endif
+
+  assign media_class = ''
+  if section.settings.media_position == 'right'
+    assign media_class = ' ba-showcase--media-right'
+  endif
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --ba-bg: {{ section.settings.bg_color | default: '#ffffff' }};
+    --ba-text: {{ section.settings.text_color | default: '#111111' }};
+    --ba-btn-bg: {{ section.settings.button_bg | default: '#000000' }};
+    --ba-btn-text: {{ section.settings.button_text_color | default: '#ffffff' }};
+    --ba-ratio: {{ section.settings.image_ratio | default: '1 / 1' }};
+    --ba-pad-top: {{ section.settings.padding_top }}px;
+    --ba-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --ba-inactive-opacity: {% if section.settings.dim_inactive_label %}0.4{% else %}1{% endif %};
+  }
+
+  .ba-showcase {
+    background: var(--ba-bg);
+    color: var(--ba-text);
+    padding-top: calc(var(--ba-pad-top) * 0.7);
+    padding-bottom: calc(var(--ba-pad-bottom) * 0.7);
+  }
+
+  .ba-showcase__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    align-items: center;
+  }
+
+  /* ---------- media ---------- */
+
+  .ba-showcase__media {
+    position: relative;
+  }
+
+  .ba-showcase__viewport {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    aspect-ratio: var(--ba-ratio);
+    background: #f2f0ed;
+  }
+
+  .ba-showcase__viewport:focus-visible {
+    outline: 2px solid var(--ba-text);
+    outline-offset: 3px;
+  }
+
+  .ba-showcase__track {
+    display: flex;
+    height: 100%;
+    transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .ba-showcase__slide {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: 100%;
+  }
+
+  .ba-showcase__img,
+  .ba-showcase__slide > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ba-showcase__badge {
+    position: absolute;
+    top: 20px;
+    z-index: 2;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    opacity: var(--ba-inactive-opacity);
+    transition: opacity 250ms ease;
+    pointer-events: none;
+  }
+
+  .ba-showcase__badge--before { left: 20px; }
+  .ba-showcase__badge--after { right: 20px; }
+  .ba-showcase__badge.is-active { opacity: 1; }
+
+  .ba-showcase__nav {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .ba-showcase__nav[hidden] { display: none; }
+  .ba-showcase__nav:hover { transform: scale(1.06); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24); }
+  .ba-showcase__nav:focus-visible { outline: 2px solid var(--ba-text); outline-offset: 2px; }
+  .ba-showcase__nav svg { width: 16px; height: 16px; display: block; }
+  .ba-showcase__nav--prev { left: -10px; }
+  .ba-showcase__nav--next { right: -10px; }
+
+  /* ---------- content ---------- */
+
+  .ba-showcase__content {
+    text-align: center;
+  }
+
+  .ba-showcase__heading {
+    margin: 0 0 16px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: inherit;
+  }
+
+  .ba-showcase__text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: inherit;
+  }
+
+  .ba-showcase__text > *:first-child { margin-top: 0; }
+  .ba-showcase__text > *:last-child { margin-bottom: 0; }
+
+  .ba-showcase__button {
+    display: inline-block;
+    margin-top: 26px;
+    padding: 18px 30px;
+    border-radius: 6px;
+    background: var(--ba-btn-bg);
+    color: var(--ba-btn-text);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+
+  .ba-showcase__button:hover { opacity: 0.85; color: var(--ba-btn-text); }
+  .ba-showcase__button:focus-visible { outline: 2px solid var(--ba-text); outline-offset: 3px; }
+
+  .ba-showcase__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- desktop ---------- */
+
+  @media screen and (min-width: 990px) {
+    .ba-showcase {
+      padding-top: var(--ba-pad-top);
+      padding-bottom: var(--ba-pad-bottom);
+    }
+
+    .ba-showcase__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 48px;
+    }
+
+    .ba-showcase--media-right .ba-showcase__media { order: 2; }
+
+    .ba-showcase__nav--prev { left: -20px; }
+    .ba-showcase__nav--next { right: -20px; }
+
+    .ba-showcase__content { text-align: left; }
+    .ba-showcase__heading { font-size: 40px; margin-bottom: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ba-showcase__track { transition: none; }
+    .ba-showcase__nav { transition: none; }
+  }
+{%- endstyle -%}
+
+<div
+  class="ba-showcase{{ media_class }}"
+  id="BaShowcase-{{ section.id }}"
+  data-ba-showcase
+  data-ba-labels="{{ label_before | escape }}|{{ label_after | escape }}"
+>
+  <div class="ba-showcase__inner">
+    <div class="ba-showcase__media">
+      <div
+        class="ba-showcase__viewport"
+        data-ba-viewport
+        tabindex="0"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="{{ 'Before and after the crochet doll was made' | escape }}"
+      >
+        <div class="ba-showcase__track" data-ba-track>
+          <div class="ba-showcase__slide" data-ba-slide>
+            {%- if section.settings.image_before != blank -%}
+              {{
+                section.settings.image_before
+                | image_url: width: 1500
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'ba-showcase__img',
+                  widths: '400, 600, 800, 1000, 1200, 1500',
+                  sizes: '(min-width: 990px) 48vw, calc(100vw - 40px)',
+                  alt: alt_before
+              }}
+            {%- else -%}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'ba-showcase__img' }}
+            {%- endif -%}
+          </div>
+
+          <div class="ba-showcase__slide" data-ba-slide>
+            {%- if section.settings.image_after != blank -%}
+              {{
+                section.settings.image_after
+                | image_url: width: 1500
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'ba-showcase__img',
+                  widths: '400, 600, 800, 1000, 1200, 1500',
+                  sizes: '(min-width: 990px) 48vw, calc(100vw - 40px)',
+                  alt: alt_after
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'ba-showcase__img' }}
+            {%- endif -%}
+          </div>
+        </div>
+
+        <span class="ba-showcase__badge ba-showcase__badge--before is-active" data-ba-badge>
+          {{- label_before -}}
+        </span>
+        <span class="ba-showcase__badge ba-showcase__badge--after" data-ba-badge>
+          {{- label_after -}}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        class="ba-showcase__nav ba-showcase__nav--prev"
+        data-ba-prev
+        aria-label="{{ 'Show the previous image' | escape }}"
+        hidden
+      >
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M10.5 2 4.5 8l6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="ba-showcase__nav ba-showcase__nav--next"
+        data-ba-next
+        aria-label="{{ 'Show the next image' | escape }}"
+      >
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M5.5 2l6 6-6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <p class="ba-showcase__sr" data-ba-status aria-live="polite"></p>
+    </div>
+
+    <div class="ba-showcase__content">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="ba-showcase__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.body != blank -%}
+        <div class="ba-showcase__text">{{ section.settings.body }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a
+          class="ba-showcase__button"
+          {% if section.settings.button_link != blank %}
+            href="{{ section.settings.button_link }}"
+          {% else %}
+            href="#" aria-disabled="true"
+          {% endif %}
+        >
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('BaShowcase-{{ section.id }}');
+    if (!root || root.dataset.baInit === 'true') return;
+    root.dataset.baInit = 'true';
+
+    var viewport = root.querySelector('[data-ba-viewport]');
+    var track = root.querySelector('[data-ba-track]');
+    var slides = Array.prototype.slice.call(root.querySelectorAll('[data-ba-slide]'));
+    var badges = Array.prototype.slice.call(root.querySelectorAll('[data-ba-badge]'));
+    var prevBtn = root.querySelector('[data-ba-prev]');
+    var nextBtn = root.querySelector('[data-ba-next]');
+    var status = root.querySelector('[data-ba-status]');
+    var labels = (root.dataset.baLabels || '').split('|');
+    var index = 0;
+
+    if (!track || slides.length < 2) return;
+
+    function render() {
+      track.style.transform = 'translateX(' + -100 * index + '%)';
+
+      slides.forEach(function (slide, i) {
+        slide.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+      });
+
+      badges.forEach(function (badge, i) {
+        badge.classList.toggle('is-active', i === index);
+      });
+
+      if (prevBtn) prevBtn.hidden = index === 0;
+      if (nextBtn) nextBtn.hidden = index === slides.length - 1;
+
+      if (status) {
+        status.textContent = (labels[index] || '') + ' — ' + (index + 1) + ' of ' + slides.length;
+      }
+    }
+
+    function go(next) {
+      var clamped = Math.max(0, Math.min(slides.length - 1, next));
+      if (clamped === index) return;
+      index = clamped;
+      render();
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { go(index - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { go(index + 1); });
+
+    if (viewport) {
+      viewport.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowLeft') { event.preventDefault(); go(index - 1); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); go(index + 1); }
+      });
+
+      var startX = null;
+      var startY = null;
+
+      viewport.addEventListener('touchstart', function (event) {
+        startX = event.changedTouches[0].clientX;
+        startY = event.changedTouches[0].clientY;
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', function (event) {
+        if (startX === null) return;
+        var deltaX = event.changedTouches[0].clientX - startX;
+        var deltaY = event.changedTouches[0].clientY - startY;
+        startX = null;
+        startY = null;
+        if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+        go(deltaX < 0 ? index + 1 : index - 1);
+      }, { passive: true });
+    }
+
+    render();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Before / After Showcase",
+  "tag": "section",
+  "class": "ba-showcase-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_before",
+      "label": "Before image (customer photo)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_after",
+      "label": "After image (finished crochet doll)"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "1 / 1", "label": "Square (1:1)" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "16 / 10", "label": "Landscape (16:10)" }
+      ],
+      "default": "1 / 1"
+    },
+    {
+      "type": "text",
+      "id": "label_before",
+      "label": "Before label",
+      "default": "Before"
+    },
+    {
+      "type": "text",
+      "id": "label_after",
+      "label": "After label",
+      "default": "After"
+    },
+    {
+      "type": "checkbox",
+      "id": "dim_inactive_label",
+      "label": "Fade the label of the hidden image",
+      "info": "Turn off to keep both labels fully solid at all times.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Image position on desktop",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "From a Photo to a Doll They'll Keep"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Description",
+      "default": "<p>Send us the photo you love most. Our makers study every detail — the hair, the smile, the favorite outfit — then crochet it stitch by stitch into a doll made only for them. One of a kind, and built to be held for years.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Start Your Custom Doll"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "Point this at your custom doll product page."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before / After Showcase"
+    }
+  ]
+}
+{% endschema %}
