@@ -17,8 +17,10 @@
     --vt-highlight: {{ section.settings.highlight_color | default: '#d8f3dd' }};
     --vt-script: '{{ script_family }}', 'Brush Script MT', cursive;
     --vt-script-scale: {{ script_scale }};
-    --vt-cols: {{ section.settings.columns_desktop | default: '6.2' }};
-    --vt-gap: 12px;
+    --vt-cols: {{ section.settings.visible_desktop | default: '4.75' }};
+    --vt-gap: 22px;
+    --vt-dim: {{ section.settings.side_opacity | divided_by: 100.0 }};
+    --vt-shrink: {{ section.settings.side_scale | divided_by: 100.0 }};
     --vt-radius: {{ section.settings.card_radius }}px;
     --vt-pad-top: {{ section.settings.padding_top }}px;
     --vt-pad-bottom: {{ section.settings.padding_bottom }}px;
@@ -32,7 +34,7 @@
   }
 
   .vt__inner {
-    max-width: 1400px;
+    max-width: 1760px;
     margin: 0 auto;
     padding: 0 20px;
   }
@@ -79,65 +81,53 @@
     box-decoration-break: clone;
   }
 
-  /* ---------- strip ---------- */
+  /* ---------- carousel ---------- */
 
   .vt__wrap {
     position: relative;
     margin-top: 30px;
   }
 
-  .vt__bar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
+  .vt__viewport {
+    overflow: hidden;
+    --vt-visible: 1.7;
   }
 
-  .vt__halt {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 2px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font-size: 13px;
-    line-height: 1;
-    opacity: 0.65;
-    cursor: pointer;
-  }
+  .vt__viewport:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: 4px; }
 
-  .vt__halt:hover { opacity: 1; }
-  .vt__halt:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: 2px; }
-  .vt__halt svg { display: block; width: 12px; height: 12px; }
-  .vt__halt-icon--resume { display: none; }
-  .vt.is-halted .vt__halt-icon--pause { display: none; }
-  .vt.is-halted .vt__halt-icon--resume { display: block; }
-
-  .vt__strip {
+  .vt__track {
     display: flex;
     gap: var(--vt-gap);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    cursor: grab;
-    --vt-per-view: 2.15;
+    align-items: center;
+    transition: transform 480ms cubic-bezier(0.33, 0, 0.2, 1);
+    touch-action: pan-y;
+    will-change: transform;
   }
 
-  .vt__strip::-webkit-scrollbar { display: none; }
-  .vt__strip.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+  .vt__track.is-instant { transition: none; }
 
   .vt__slide {
-    flex: 0 0 calc((100% - (var(--vt-per-view) - 1) * var(--vt-gap)) / var(--vt-per-view));
-    scroll-snap-align: start;
+    flex: 0 0 calc((100% - (var(--vt-visible) - 1) * var(--vt-gap)) / var(--vt-visible));
+    min-width: 0;
   }
 
+  /* Everything but the centre sits back: smaller and faded, so there is only
+     ever one place for the eye to land. */
   .vt__card {
     position: relative;
     overflow: hidden;
     border-radius: var(--vt-radius);
     background: #e9e6e2;
     aspect-ratio: 9 / 16;
+    transform: scale(var(--vt-shrink));
+    opacity: var(--vt-dim);
+    transition: transform 480ms cubic-bezier(0.33, 0, 0.2, 1), opacity 480ms ease, box-shadow 480ms ease;
+  }
+
+  .vt__slide.is-active .vt__card {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
   }
 
   .vt__card video,
@@ -160,35 +150,7 @@
     pointer-events: none;
   }
 
-  /* Badge is a sibling of the hit area, not a child, so the hit area can shrink
-     out from under it once the clip is playing with sound. */
-  .vt__badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 3;
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #ffffff;
-    color: #111111;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.28);
-    pointer-events: none;
-  }
-
-  .vt__badge svg { width: 13px; height: 13px; display: none; }
-  .vt__badge .vt__icon--play { display: block; }
-
-  .vt__card.is-started .vt__icon--play,
-  .vt__card.is-loud .vt__icon--play { display: none; }
-  .vt__card.is-started.is-muted .vt__icon--muted { display: block; }
-  .vt__card.is-loud .vt__icon--sound { display: block; }
-
-  /* Muted and ambient: the whole card unmutes. Playing with sound: the hit area
-     collapses to the badge so the native controls underneath are reachable. */
-  .vt__toggle {
+  .vt__pick {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -200,43 +162,102 @@
     cursor: pointer;
   }
 
-  .vt__card.is-loud .vt__toggle {
-    inset: 0 0 auto auto;
-    width: 52px;
-    height: 52px;
+  .vt__pick:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: -4px; }
+
+  /* Only the centre clip is playing, so only it gets controls. */
+  .vt__tools {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 3;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms ease;
   }
 
-  .vt__toggle:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: -3px; }
+  .vt__slide.is-active .vt__tools { opacity: 1; pointer-events: auto; }
+
+  .vt__tool {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #ffffff;
+    cursor: pointer;
+  }
+
+  .vt__tool:hover { background: rgba(0, 0, 0, 0.72); }
+  .vt__tool:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+  .vt__tool svg { display: block; width: 14px; height: 14px; }
+
+  .vt__icon { display: none; }
+  .vt__card.is-muted .vt__icon--muted { display: block; }
+  .vt__card:not(.is-muted) .vt__icon--sound { display: block; }
+  .vt__card.is-held .vt__icon--resume { display: block; }
+  .vt__card:not(.is-held) .vt__icon--hold { display: block; }
 
   .vt__nav {
     position: absolute;
     top: 50%;
-    z-index: 4;
-    display: none;
+    z-index: 5;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin-top: -20px;
+    width: 36px;
+    height: 36px;
+    margin-top: -18px;
     padding: 0;
     border: 0;
     border-radius: 50%;
     background: #ffffff;
     color: #111111;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
     cursor: pointer;
   }
 
-  .vt__nav svg { display: block; width: 16px; height: 16px; }
-  .vt__nav[hidden] { display: none; }
-  .vt__nav--prev { left: -14px; }
-  .vt__nav--next { right: -14px; }
+  .vt__nav svg { display: block; width: 15px; height: 15px; }
+  .vt__nav--prev { left: 4px; }
+  .vt__nav--next { right: 4px; }
+  .vt--static .vt__nav { display: none; }
+
+  .vt__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 22px;
+  }
+
+  .vt--static .vt__dots { display: none; }
+
+  .vt__dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.22;
+    cursor: pointer;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+
+  .vt__dot.is-active { opacity: 1; transform: scale(1.25); }
+  .vt__dot:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: 3px; }
 
   /* ---------- breakpoints ---------- */
 
   @media screen and (min-width: 750px) {
-    .vt__strip { --vt-per-view: 3.2; }
+    .vt__viewport { --vt-visible: 2.8; }
     .vt__heading { font-size: 38px; }
+    .vt__nav { width: 42px; height: 42px; margin-top: -21px; }
+    .vt__nav svg { width: 17px; height: 17px; }
   }
 
   @media screen and (min-width: 990px) {
@@ -245,21 +266,18 @@
       padding-bottom: var(--vt-pad-bottom);
     }
 
-    .vt__strip { --vt-per-view: var(--vt-cols); }
+    .vt__viewport { --vt-visible: var(--vt-cols); }
     .vt__heading { font-size: 46px; margin-bottom: 14px; }
     .vt__sub { font-size: 18px; }
-    .vt--arrows .vt__nav { display: flex; }
-    /* Must out-specify the rule above, or an arrow hidden at the end of the
-       strip would be forced back on screen by it. */
-    .vt--arrows .vt__nav[hidden] { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vt__track,
+    .vt__card { transition: none; }
   }
 {%- endstyle -%}
 
-<div
-  class="vt{% if section.settings.show_arrows %} vt--arrows{% endif %}"
-  id="VtStrip-{{ section.id }}"
-  data-vt-root
->
+<div class="vt" id="VtStrip-{{ section.id }}" data-vt-root data-vt-advance="{{ section.settings.advance_on_end }}" data-vt-autoplay="{{ section.settings.autoplay }}">
   <div class="vt__inner">
     {%- if section.settings.heading != blank -%}
       <h2 class="vt__heading">{{ section.settings.heading }}</h2>
@@ -270,92 +288,96 @@
     {%- endif -%}
 
     <div class="vt__wrap">
-      {%- if section.settings.show_halt -%}
-        <div class="vt__bar">
-          <button type="button" class="vt__halt" data-vt-halt aria-pressed="false">
-            <svg class="vt__halt-icon vt__halt-icon--pause" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" focusable="false">
-              <rect x="1.5" y="1" width="3" height="10" rx="0.8"/>
-              <rect x="7.5" y="1" width="3" height="10" rx="0.8"/>
-            </svg>
-            <svg class="vt__halt-icon vt__halt-icon--resume" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" focusable="false">
-              <path d="M2.5 1.2l8 4.8-8 4.8z"/>
-            </svg>
-            <span data-vt-halt-label>{{ 'Pause videos' }}</span>
-          </button>
-        </div>
-      {%- endif -%}
-
-      <div class="vt__strip" data-vt-strip>
-        {%- for block in section.blocks -%}
-          <div class="vt__slide" data-vt-slide {{ block.shopify_attributes }}>
-            <div class="vt__card is-muted" data-vt-card>
-              {%- if block.settings.video != blank -%}
-                {{
-                  block.settings.video
-                  | video_tag:
-                    image_size: '640x',
-                    loop: true,
-                    muted: true,
-                    preload: 'none'
-                }}
-
-                {%- if block.settings.poster != blank -%}
-                  {%- assign poster_alt = block.settings.poster.alt -%}
-                  {%- if poster_alt == blank -%}
-                    {%- assign poster_alt = 'A customer unboxing their handmade crochet gift' -%}
-                  {%- endif -%}
+      <div
+        class="vt__viewport"
+        data-vt-viewport
+        tabindex="0"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="{{ 'Customer videos' | escape }}"
+      >
+        <div class="vt__track" data-vt-track>
+          {%- for block in section.blocks -%}
+            <div class="vt__slide" data-vt-slide {{ block.shopify_attributes }}>
+              <div class="vt__card is-muted" data-vt-card>
+                {%- if block.settings.video != blank -%}
                   {{
-                    block.settings.poster
-                    | image_url: width: 600
-                    | image_tag:
-                      loading: 'lazy',
-                      class: 'vt__poster',
-                      widths: '200, 300, 400, 600',
-                      sizes: '(min-width: 990px) 220px, 45vw',
-                      alt: poster_alt
+                    block.settings.video
+                    | video_tag:
+                      image_size: '720x',
+                      muted: true,
+                      preload: 'none'
                   }}
+
+                  {%- if block.settings.poster != blank -%}
+                    {%- assign poster_alt = block.settings.poster.alt -%}
+                    {%- if poster_alt == blank -%}
+                      {%- assign poster_alt = 'A customer unboxing their handmade crochet gift' -%}
+                    {%- endif -%}
+                    {{
+                      block.settings.poster
+                      | image_url: width: 800
+                      | image_tag:
+                        loading: 'lazy',
+                        class: 'vt__poster',
+                        widths: '240, 360, 480, 640, 800',
+                        sizes: '(min-width: 990px) 360px, 60vw',
+                        alt: poster_alt
+                    }}
+                  {%- endif -%}
+
+                  <button
+                    type="button"
+                    class="vt__pick"
+                    data-vt-pick
+                    aria-label="{{ 'Bring this video to the centre' | escape }}"
+                  ></button>
+
+                  <div class="vt__tools">
+                    <button type="button" class="vt__tool" data-vt-hold aria-label="{{ 'Pause this video' | escape }}">
+                      <svg class="vt__icon vt__icon--hold" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true" focusable="false">
+                        <rect x="2.5" y="1.5" width="3.4" height="11" rx="0.9"/>
+                        <rect x="8.1" y="1.5" width="3.4" height="11" rx="0.9"/>
+                      </svg>
+                      <svg class="vt__icon vt__icon--resume" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true" focusable="false">
+                        <path d="M3 1.4l9 5.6-9 5.6z"/>
+                      </svg>
+                    </button>
+
+                    <button type="button" class="vt__tool" data-vt-sound aria-label="{{ 'Turn on sound' | escape }}">
+                      <svg class="vt__icon vt__icon--muted" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
+                        <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
+                        <path d="M9.2 5.2l3 3.6M12.2 5.2l-3 3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                      <svg class="vt__icon vt__icon--sound" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
+                        <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
+                        <path d="M9.1 5.1a2.7 2.7 0 010 3.8M11 3.2a5.3 5.3 0 010 7.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                {%- else -%}
+                  {{ 'lifestyle-2' | placeholder_svg_tag }}
                 {%- endif -%}
-
-                <span class="vt__badge" aria-hidden="true">
-                  <svg class="vt__icon vt__icon--play" viewBox="0 0 12 12" fill="currentColor" focusable="false">
-                    <path d="M2.5 1.2l8 4.8-8 4.8z"/>
-                  </svg>
-                  <svg class="vt__icon vt__icon--muted" viewBox="0 0 14 14" fill="none" focusable="false">
-                    <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
-                    <path d="M9.2 5.2l3 3.6M12.2 5.2l-3 3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                  </svg>
-                  <svg class="vt__icon vt__icon--sound" viewBox="0 0 14 14" fill="none" focusable="false">
-                    <path d="M6.4 2.2L3.9 4.4H2v5.2h1.9l2.5 2.2z" fill="currentColor"/>
-                    <path d="M9.1 5.1a2.7 2.7 0 010 3.8M11 3.2a5.3 5.3 0 010 7.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                  </svg>
-                </span>
-
-                <button
-                  type="button"
-                  class="vt__toggle"
-                  data-vt-toggle
-                  aria-label="{{ 'Turn on sound for this video' | escape }}"
-                ></button>
-              {%- else -%}
-                {{ 'lifestyle-2' | placeholder_svg_tag }}
-              {%- endif -%}
+              </div>
             </div>
-          </div>
-        {%- endfor -%}
+          {%- endfor -%}
+        </div>
       </div>
 
-      <button type="button" class="vt__nav vt__nav--prev" data-vt-prev aria-label="{{ 'Scroll back' | escape }}" hidden>
+      <button type="button" class="vt__nav vt__nav--prev" data-vt-prev aria-label="{{ 'Previous video' | escape }}">
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
           <path d="M10.5 2 4.5 8l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
 
-      <button type="button" class="vt__nav vt__nav--next" data-vt-next aria-label="{{ 'Scroll forward' | escape }}">
+      <button type="button" class="vt__nav vt__nav--next" data-vt-next aria-label="{{ 'Next video' | escape }}">
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
           <path d="M5.5 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
+
+    <div class="vt__dots" data-vt-dots></div>
   </div>
 </div>
 
@@ -365,221 +387,393 @@
     if (!root || root.dataset.vtInit === 'true') return;
     root.dataset.vtInit = 'true';
 
-    var strip = root.querySelector('[data-vt-strip]');
+    var viewport = root.querySelector('[data-vt-viewport]');
+    var track = root.querySelector('[data-vt-track]');
+    var dotsBox = root.querySelector('[data-vt-dots]');
     var prevBtn = root.querySelector('[data-vt-prev]');
     var nextBtn = root.querySelector('[data-vt-next]');
-    var haltBtn = root.querySelector('[data-vt-halt]');
-    var haltLabel = root.querySelector('[data-vt-halt-label]');
-    if (!strip) return;
+    if (!viewport || !track) return;
 
-    var cards = Array.prototype.slice.call(root.querySelectorAll('[data-vt-card]'));
+    var real = Array.prototype.slice.call(track.querySelectorAll('[data-vt-slide]'));
+    var total = real.length;
+    if (total === 0) return;
+
     var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     var connection = navigator.connection || {};
+    var wantsAutoplay = root.dataset.vtAutoplay === 'true';
+    var advanceOnEnd = root.dataset.vtAdvance === 'true';
 
-    // Someone who asked for less motion, or who is paying per megabyte, should
-    // not get six clips rolling on their own. They get a play button instead.
+    // Someone who asked for less motion, or who is paying per megabyte, gets a
+    // still card with a play button instead of a clip that starts by itself.
     function ambientAllowed() {
-      return !motionQuery.matches && connection.saveData !== true;
+      return wantsAutoplay && !motionQuery.matches && connection.saveData !== true;
     }
 
-    var halted = false;
+    var soundOn = false;
+    var held = false;
+    var onScreen = true;
+    var enabled = total > 1;
 
-    /* ---------- sound ---------- */
+    /* ---------- clones ---------- */
 
-    function silence(card) {
-      var video = card.querySelector('video');
-      if (!video) return;
+    // Widest layout is 7 visible, so three either side plus one spare.
+    var clones = enabled ? Math.min(total, 4) : 0;
+
+    for (var i = 0; i < clones; i++) {
+      var tail = real[total - 1 - i].cloneNode(true);
+      tail.setAttribute('data-vt-clone', '');
+      tail.setAttribute('aria-hidden', 'true');
+      track.insertBefore(tail, track.firstChild);
+
+      var head = real[i].cloneNode(true);
+      head.setAttribute('data-vt-clone', '');
+      head.setAttribute('aria-hidden', 'true');
+      track.appendChild(head);
+    }
+
+    var slides = Array.prototype.slice.call(track.querySelectorAll('[data-vt-slide]'));
+    var pos = clones;
+
+    root.classList.toggle('vt--static', !enabled);
+
+    /* ---------- geometry ---------- */
+
+    function slideWidth() {
+      var first = track.children[0];
+      return first ? first.getBoundingClientRect().width : 0;
+    }
+
+    function pitch() {
+      var a = track.children[0];
+      var b = track.children[1];
+      if (!a) return 0;
+      if (!b) return a.getBoundingClientRect().width;
+      return b.getBoundingClientRect().left - a.getBoundingClientRect().left;
+    }
+
+    // Offset that parks slide `index` dead centre of the viewport.
+    function offsetFor(index) {
+      return viewport.clientWidth / 2 - (index * pitch() + slideWidth() / 2);
+    }
+
+    function realIndex() {
+      if (!enabled) return 0;
+      return ((pos - clones) % total + total) % total;
+    }
+
+    /* ---------- video ---------- */
+
+    function cardOf(slide) { return slide.querySelector('[data-vt-card]'); }
+    function videoOf(slide) { return slide.querySelector('video'); }
+
+    function reset(slide) {
+      var video = videoOf(slide);
+      var card = cardOf(slide);
+      if (!video || !card) return;
+      if (!video.paused) video.pause();
       video.muted = true;
-      video.controls = false;
       card.classList.add('is-muted');
-      card.classList.remove('is-loud');
-      label(card);
+      card.classList.remove('is-held');
     }
 
-    function label(card) {
-      var button = card.querySelector('[data-vt-toggle]');
-      var video = card.querySelector('video');
-      if (!button || !video) return;
-      button.setAttribute(
-        'aria-label',
-        video.muted ? 'Turn on sound for this video' : 'Mute this video'
-      );
+    function syncTools(slide) {
+      var card = cardOf(slide);
+      var video = videoOf(slide);
+      if (!card || !video) return;
+
+      card.classList.toggle('is-muted', video.muted);
+      card.classList.toggle('is-held', video.paused);
+
+      var soundBtn = slide.querySelector('[data-vt-sound]');
+      var holdBtn = slide.querySelector('[data-vt-hold]');
+      if (soundBtn) soundBtn.setAttribute('aria-label', video.muted ? 'Turn on sound' : 'Mute');
+      if (holdBtn) holdBtn.setAttribute('aria-label', video.paused ? 'Play this video' : 'Pause this video');
     }
 
-    /* ---------- playback ---------- */
-
-    function attemptPlay(card) {
-      var video = card.querySelector('video');
+    function attemptPlay(slide) {
+      var video = videoOf(slide);
       if (!video) return;
 
       var started = video.play();
       if (!started || typeof started.catch !== 'function') return;
 
       started.catch(function () {
-        // Browsers only grant autoplay to muted video. If an unmuted resume was
-        // refused, drop back to muted and try once more rather than freeze.
+        // Browsers only grant autoplay to muted video. If an unmuted start was
+        // refused, drop to muted and try once more rather than sit frozen.
         if (video.muted) return;
-        silence(card);
+        soundOn = false;
+        video.muted = true;
+        syncTools(slide);
         var retry = video.play();
         if (retry && typeof retry.catch === 'function') retry.catch(function () {});
       });
     }
 
-    function syncCard(card) {
-      var video = card.querySelector('video');
-      if (!video) return;
+    // Runs once the centre slide has finished moving, never mid-slide, so a
+    // clone is never the thing that starts playing.
+    function settle() {
+      slides.forEach(function (slide, index) {
+        if (index !== pos) reset(slide);
+      });
 
-      var wanted = card.dataset.vtVisible === '1' && !halted && ambientAllowed();
+      var active = slides[pos];
+      if (!active) return;
 
-      if (wanted) {
-        if (video.paused) attemptPlay(card);
-      } else if (!video.paused) {
-        video.pause();
-        silence(card);
+      var video = videoOf(active);
+      if (video) {
+        video.muted = !soundOn;
+        if (onScreen && !held && ambientAllowed()) attemptPlay(active);
+        syncTools(active);
+      }
+
+      // Buffer the clip that comes next so the hand-off is not a black gap.
+      var upcoming = slides[pos + 1];
+      if (upcoming) {
+        var nextVideo = videoOf(upcoming);
+        if (nextVideo && nextVideo.getAttribute('preload') !== 'auto') {
+          nextVideo.setAttribute('preload', 'auto');
+        }
       }
     }
 
-    cards.forEach(function (card) {
-      var video = card.querySelector('video');
-      var button = card.querySelector('[data-vt-toggle]');
-      if (!video || !button) return;
+    /* ---------- movement ---------- */
 
-      video.muted = true;
-      video.setAttribute('muted', 'muted');
-      card.dataset.vtVisible = '0';
+    function paint(animate) {
+      if (!animate) track.classList.add('is-instant');
+      track.style.transform = 'translate3d(' + offsetFor(pos) + 'px, 0, 0)';
 
-      video.addEventListener('playing', function () { card.classList.add('is-started'); });
-
-      button.addEventListener('click', function () {
-        // A drag that finishes over a card still fires a click. Ignore it.
-        if (strip.dataset.vtDragged === 'true') return;
-
-        if (video.muted) {
-          cards.forEach(function (other) { if (other !== card) silence(other); });
-          video.muted = false;
-          video.controls = true;
-          card.classList.remove('is-muted');
-          card.classList.add('is-loud');
-          label(card);
-          if (video.paused) attemptPlay(card);
-        } else {
-          silence(card);
-        }
+      slides.forEach(function (slide, index) {
+        slide.classList.toggle('is-active', index === pos);
       });
 
-      label(card);
+      var current = realIndex();
+      if (dotsBox) {
+        Array.prototype.forEach.call(dotsBox.children, function (dot, index) {
+          dot.classList.toggle('is-active', index === current);
+          dot.setAttribute('aria-current', index === current ? 'true' : 'false');
+        });
+      }
+
+      if (!animate) {
+        void track.offsetWidth;
+        track.classList.remove('is-instant');
+      }
+    }
+
+    function go(delta) {
+      if (!enabled) return;
+      var leaving = slides[pos];
+      if (leaving) reset(leaving);
+      pos += delta;
+      paint(true);
+    }
+
+    function jumpTo(index) {
+      if (!enabled) return;
+      var target = clones + index;
+      if (target === pos) return;
+      go(target - pos);
+    }
+
+    track.addEventListener('transitionend', function (event) {
+      if (event.target !== track || event.propertyName !== 'transform') return;
+
+      if (pos >= total + clones) {
+        pos -= total;
+        paint(false);
+      } else if (pos < clones) {
+        pos += total;
+        paint(false);
+      }
+
+      settle();
     });
 
-    /* ---------- play only what is on screen ---------- */
+    /* ---------- dots ---------- */
 
-    if ('IntersectionObserver' in window) {
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          entry.target.dataset.vtVisible = entry.isIntersecting ? '1' : '0';
-          syncCard(entry.target);
-        });
-      }, { threshold: 0.35 });
-
-      cards.forEach(function (card) { observer.observe(card); });
-    }
-
-    if (motionQuery.addEventListener) {
-      motionQuery.addEventListener('change', function () { cards.forEach(syncCard); });
-    }
-
-    /* ---------- pause everything ---------- */
-
-    if (haltBtn) {
-      haltBtn.addEventListener('click', function () {
-        halted = !halted;
-        root.classList.toggle('is-halted', halted);
-        haltBtn.setAttribute('aria-pressed', halted ? 'true' : 'false');
-        if (haltLabel) haltLabel.textContent = halted ? 'Play videos' : 'Pause videos';
-        cards.forEach(syncCard);
+    if (dotsBox && enabled) {
+      real.forEach(function (slide, index) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'vt__dot';
+        dot.setAttribute('aria-label', 'Show video ' + (index + 1) + ' of ' + total);
+        dot.addEventListener('click', function () { jumpTo(index); });
+        dotsBox.appendChild(dot);
       });
     }
 
-    /* ---------- drag to scroll ---------- */
+    /* ---------- per-card controls ---------- */
+
+    slides.forEach(function (slide, index) {
+      var pick = slide.querySelector('[data-vt-pick]');
+      var soundBtn = slide.querySelector('[data-vt-sound]');
+      var holdBtn = slide.querySelector('[data-vt-hold]');
+      var video = videoOf(slide);
+
+      if (video) {
+        video.muted = true;
+        video.setAttribute('muted', 'muted');
+
+        video.addEventListener('playing', function () {
+          var card = cardOf(slide);
+          if (card) card.classList.add('is-started');
+          syncTools(slide);
+        });
+
+        video.addEventListener('pause', function () { syncTools(slide); });
+
+        video.addEventListener('ended', function () {
+          if (slides.indexOf(slide) !== pos) return;
+          if (advanceOnEnd && enabled && !held) go(1);
+        });
+      }
+
+      if (pick) {
+        pick.addEventListener('click', function () {
+          if (viewport.dataset.vtDragged === 'true') return;
+
+          var here = slides.indexOf(slide);
+          if (here !== pos) {
+            go(here - pos);
+            return;
+          }
+
+          // Already centred: the card body is the sound toggle.
+          if (soundBtn) soundBtn.click();
+        });
+      }
+
+      if (soundBtn) {
+        soundBtn.addEventListener('click', function (event) {
+          event.stopPropagation();
+          if (!video) return;
+          soundOn = video.muted;
+          video.muted = !soundOn;
+          if (video.paused && !held) attemptPlay(slide);
+          syncTools(slide);
+        });
+      }
+
+      if (holdBtn) {
+        holdBtn.addEventListener('click', function (event) {
+          event.stopPropagation();
+          if (!video) return;
+          if (video.paused) {
+            held = false;
+            attemptPlay(slide);
+          } else {
+            held = true;
+            video.pause();
+          }
+          syncTools(slide);
+        });
+      }
+    });
+
+    /* ---------- drag / swipe ---------- */
 
     var drag = null;
 
-    strip.addEventListener('pointerdown', function (event) {
+    viewport.addEventListener('pointerdown', function (event) {
+      if (!enabled) return;
       if (event.pointerType === 'mouse' && event.button !== 0) return;
-      // Let touch keep the browser's own momentum scrolling.
-      if (event.pointerType === 'touch') return;
 
-      drag = { id: event.pointerId, x: event.clientX, left: strip.scrollLeft, moved: 0 };
-      strip.dataset.vtDragged = 'false';
+      var span = pitch();
+      drag = { id: event.pointerId, x: event.clientX, base: offsetFor(pos), moved: 0, limit: span * 0.9 };
+      viewport.dataset.vtDragged = 'false';
+      track.classList.add('is-instant');
     });
 
-    strip.addEventListener('pointermove', function (event) {
+    viewport.addEventListener('pointermove', function (event) {
       if (drag === null || event.pointerId !== drag.id) return;
 
-      var dx = event.clientX - drag.x;
-      if (Math.abs(dx) < 4 && drag.moved === 0) return;
+      var moved = event.clientX - drag.x;
+      if (Math.abs(moved) < 4 && drag.moved === 0) return;
 
       if (drag.moved === 0) {
-        strip.classList.add('is-dragging');
-        try { strip.setPointerCapture(drag.id); } catch (e) {}
+        try { viewport.setPointerCapture(drag.id); } catch (e) {}
       }
 
-      drag.moved = dx;
-      strip.dataset.vtDragged = 'true';
-      strip.scrollLeft = drag.left - dx;
+      if (moved > drag.limit) moved = drag.limit;
+      if (moved < -drag.limit) moved = -drag.limit;
+
+      drag.moved = moved;
+      viewport.dataset.vtDragged = 'true';
+      track.style.transform = 'translate3d(' + (drag.base + moved) + 'px, 0, 0)';
     });
 
     function endDrag(event) {
       if (drag === null || event.pointerId !== drag.id) return;
+      var moved = drag.moved;
       drag = null;
-      strip.classList.remove('is-dragging');
+      track.classList.remove('is-instant');
+
+      if (moved <= -40) go(1);
+      else if (moved >= 40) go(-1);
+      else paint(true);
+
       // Cleared two frames later so the click that follows this pointerup still
       // sees the flag and gets swallowed.
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () { strip.dataset.vtDragged = 'false'; });
+        requestAnimationFrame(function () { viewport.dataset.vtDragged = 'false'; });
       });
     }
 
-    strip.addEventListener('pointerup', endDrag);
-    strip.addEventListener('pointercancel', endDrag);
-    strip.addEventListener('dragstart', function (event) { event.preventDefault(); });
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('dragstart', function (event) { event.preventDefault(); });
 
-    /* ---------- arrows ---------- */
+    /* ---------- arrows + keyboard ---------- */
 
-    function stepSize() {
-      var slide = strip.querySelector('[data-vt-slide]');
-      if (!slide) return strip.clientWidth;
-      var gap = parseFloat(getComputedStyle(strip).columnGap) || 0;
-      return slide.getBoundingClientRect().width + gap;
-    }
+    if (prevBtn) prevBtn.addEventListener('click', function () { go(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { go(1); });
 
-    function nudge(direction) {
-      strip.scrollBy({
-        left: direction * stepSize(),
-        behavior: motionQuery.matches ? 'auto' : 'smooth'
-      });
-    }
-
-    function syncArrows() {
-      var max = strip.scrollWidth - strip.clientWidth;
-      if (prevBtn) prevBtn.hidden = strip.scrollLeft <= 1;
-      if (nextBtn) nextBtn.hidden = strip.scrollLeft >= max - 1;
-    }
-
-    if (prevBtn) prevBtn.addEventListener('click', function () { nudge(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', function () { nudge(1); });
-
-    strip.addEventListener('scroll', function () {
-      if (strip.dataset.vtRaf === 'true') return;
-      strip.dataset.vtRaf = 'true';
-      requestAnimationFrame(function () {
-        strip.dataset.vtRaf = 'false';
-        syncArrows();
-      });
+    viewport.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft') { event.preventDefault(); go(-1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); go(1); }
     });
 
-    window.addEventListener('resize', syncArrows);
-    syncArrows();
-    if (document.readyState !== 'complete') window.addEventListener('load', syncArrows);
+    /* ---------- only run while on screen ---------- */
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          onScreen = entry.isIntersecting;
+          if (onScreen) {
+            settle();
+          } else {
+            var active = slides[pos];
+            if (active) reset(active);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      observer.observe(root);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        var active = slides[pos];
+        if (active) reset(active);
+      } else {
+        settle();
+      }
+    });
+
+    /* ---------- layout ---------- */
+
+    var raf = null;
+    window.addEventListener('resize', function () {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(function () { paint(false); });
+    });
+
+    paint(false);
+    settle();
+
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', function () { paint(false); });
+    }
   })();
 </script>
 
@@ -641,32 +835,52 @@
     },
     {
       "type": "header",
-      "content": "Strip"
+      "content": "Carousel"
     },
     {
       "type": "select",
-      "id": "columns_desktop",
-      "label": "Videos per view on desktop",
-      "info": "Tablet shows 3, mobile shows 2. A sliver of the next video always peeks in so people know it scrolls.",
+      "id": "visible_desktop",
+      "label": "Videos on screen at once",
+      "info": "Only the centre one plays. Tablet and mobile always show fewer.",
       "options": [
-        { "value": "4.2", "label": "4" },
-        { "value": "5.2", "label": "5" },
-        { "value": "6.2", "label": "6" }
+        { "value": "2.75", "label": "3 — one either side" },
+        { "value": "4.75", "label": "5 — two either side" },
+        { "value": "6.75", "label": "7 — three either side" }
       ],
-      "default": "6.2"
+      "default": "4.75"
+    },
+    {
+      "type": "range",
+      "id": "side_scale",
+      "label": "Size of the side videos",
+      "min": 60,
+      "max": 95,
+      "step": 5,
+      "unit": "%",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "side_opacity",
+      "label": "Fade on the side videos",
+      "min": 25,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 55
     },
     {
       "type": "checkbox",
-      "id": "show_arrows",
-      "label": "Show arrows on desktop",
-      "info": "The reference site has none, so mouse users have no obvious way to scroll. Turn off to match it exactly.",
+      "id": "autoplay",
+      "label": "Play the centre video by itself",
+      "info": "Always starts muted. Held back on devices set to reduced motion or data saver.",
       "default": true
     },
     {
       "type": "checkbox",
-      "id": "show_halt",
-      "label": "Show the pause control",
-      "info": "Clips start on their own, so accessibility rules require a way to stop them. Leave this on.",
+      "id": "advance_on_end",
+      "label": "Move to the next video when one finishes",
+      "info": "Off means the centre clip stops on its last frame and waits.",
       "default": true
     },
     {
@@ -706,10 +920,10 @@
       "id": "card_radius",
       "label": "Video corner radius",
       "min": 0,
-      "max": 24,
+      "max": 28,
       "step": 2,
       "unit": "px",
-      "default": 8
+      "default": 12
     },
     {
       "type": "range",
