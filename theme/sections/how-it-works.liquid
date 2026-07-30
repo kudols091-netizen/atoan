@@ -222,6 +222,14 @@
                         <path d="M19 51l5 5M27 48l5 5M35 48l5 5M43 51l5 5"/>
                       </g>
                     </svg>
+                  {%- when 'shield' -%}
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <path d="M32 6l21 7.5V30c0 13.5-8.8 23.3-21 29.5C19.8 53.3 11 43.5 11 30V13.5z"/>
+                      <path d="M22.5 31.5l6.8 6.8L43 25"/>
+                      <g opacity="0.4">
+                        <path d="M16 21l4 4M16 29l4 4M16 37l4 4M44 21l4 4M44 29l4 4M44 37l4 4"/>
+                      </g>
+                    </svg>
                   {%- when 'smiley' -%}
                     <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                       <circle cx="32" cy="32" r="23"/>
@@ -388,6 +396,7 @@
             { "value": "globe", "label": "Globe" },
             { "value": "doll", "label": "Doll with tick" },
             { "value": "support", "label": "Support headset" },
+            { "value": "shield", "label": "Shield with tick" },
             { "value": "smiley", "label": "Happy face" },
             { "value": "chat", "label": "Message" }
           ],
@@ -459,7 +468,7 @@
         {
           "type": "step",
           "settings": {
-            "icon": "globe",
+            "icon": "truck",
             "text": "Tracked Shipping",
             "description": "<p>Every order ships with tracking. We email you the number the moment it leaves us.</p>"
           }
@@ -475,7 +484,7 @@
         {
           "type": "step",
           "settings": {
-            "icon": "support",
+            "icon": "chat",
             "text": "Talk to the Makers",
             "description": "<p>Your message reaches the people who crochet the dolls, not a script. We answer every one.</p>"
           }
@@ -483,7 +492,7 @@
         {
           "type": "step",
           "settings": {
-            "icon": "smiley",
+            "icon": "shield",
             "text": "30-Day Returns",
             "description": "<p>Not what you hoped for? You have 30 days from delivery to start a return.</p>"
           }
