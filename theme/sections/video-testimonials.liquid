@@ -1,0 +1,596 @@
+{%- liquid
+  assign script_value = section.settings.script_font | default: 'Yellowtail'
+  assign script_family = script_value | replace: '+', ' '
+  assign script_scale = section.settings.script_scale | divided_by: 100.0
+-%}
+
+{%- if section.settings.load_script_font -%}
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ script_value }}&amp;display=swap">
+{%- endif -%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --vt-bg: {{ section.settings.bg_color | default: '#ffffff' }};
+    --vt-text: {{ section.settings.text_color | default: '#1a1a1a' }};
+    --vt-accent: {{ section.settings.accent_color | default: '#178a3f' }};
+    --vt-highlight: {{ section.settings.highlight_color | default: '#d8f3dd' }};
+    --vt-script: '{{ script_family }}', 'Brush Script MT', cursive;
+    --vt-script-scale: {{ script_scale }};
+    --vt-cols: {{ section.settings.columns_desktop | default: '6.2' }};
+    --vt-gap: 12px;
+    --vt-radius: {{ section.settings.card_radius }}px;
+    --vt-pad-top: {{ section.settings.padding_top }}px;
+    --vt-pad-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  .vt {
+    background: var(--vt-bg);
+    color: var(--vt-text);
+    padding-top: calc(var(--vt-pad-top) * 0.7);
+    padding-bottom: calc(var(--vt-pad-bottom) * 0.7);
+  }
+
+  .vt__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ---------- headings ---------- */
+
+  .vt__heading {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    color: inherit;
+  }
+
+  /* The script look: italics typed in the theme editor become the accent word. */
+  .vt__heading em {
+    font-family: var(--vt-script);
+    font-style: normal;
+    font-weight: 400;
+    font-size: calc(1em * var(--vt-script-scale));
+    line-height: 0.85;
+    color: var(--vt-accent);
+  }
+
+  .vt__sub {
+    max-width: 760px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+    color: inherit;
+  }
+
+  .vt__sub strong { font-weight: 700; }
+
+  .vt__sub em {
+    font-style: normal;
+    color: var(--vt-accent);
+    background: var(--vt-highlight);
+    padding: 0 5px;
+    border-radius: 3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* ---------- strip ---------- */
+
+  .vt__wrap {
+    position: relative;
+    margin-top: 34px;
+  }
+
+  .vt__strip {
+    display: flex;
+    gap: var(--vt-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    --vt-per-view: 2.15;
+  }
+
+  .vt__strip::-webkit-scrollbar { display: none; }
+  .vt__strip.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+
+  .vt__slide {
+    flex: 0 0 calc((100% - (var(--vt-per-view) - 1) * var(--vt-gap)) / var(--vt-per-view));
+    scroll-snap-align: start;
+  }
+
+  .vt__card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--vt-radius);
+    background: #e9e6e2;
+    aspect-ratio: 9 / 16;
+  }
+
+  .vt__card video,
+  .vt__card img,
+  .vt__card svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vt__poster {
+    position: absolute;
+    inset: 0;
+    transition: opacity 200ms ease;
+  }
+
+  /* Covers the whole card so the tap target is big, while the visible badge
+     stays in the corner the way the reference does it. */
+  .vt__play {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    transition: opacity 200ms ease;
+  }
+
+  .vt__play-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.28);
+  }
+
+  .vt__play-badge svg { width: 11px; height: 11px; display: block; }
+  .vt__play:focus-visible { outline: 2px solid var(--vt-accent); outline-offset: -3px; }
+
+  .vt__card.is-playing .vt__poster,
+  .vt__card.is-playing .vt__play {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vt__nav {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+  }
+
+  .vt__nav svg { display: block; width: 16px; height: 16px; }
+  .vt__nav[hidden] { display: none; }
+  .vt__nav--prev { left: -14px; }
+  .vt__nav--next { right: -14px; }
+
+  /* ---------- breakpoints ---------- */
+
+  @media screen and (min-width: 750px) {
+    .vt__strip { --vt-per-view: 3.2; }
+    .vt__heading { font-size: 38px; }
+  }
+
+  @media screen and (min-width: 990px) {
+    .vt {
+      padding-top: var(--vt-pad-top);
+      padding-bottom: var(--vt-pad-bottom);
+    }
+
+    .vt__strip { --vt-per-view: var(--vt-cols); }
+    .vt__heading { font-size: 46px; margin-bottom: 14px; }
+    .vt__sub { font-size: 18px; }
+    .vt--arrows .vt__nav { display: flex; }
+    /* Must out-specify the rule above, or an arrow hidden at the end of the
+       strip would be forced back on screen by it. */
+    .vt--arrows .vt__nav[hidden] { display: none; }
+  }
+{%- endstyle -%}
+
+<div
+  class="vt{% if section.settings.show_arrows %} vt--arrows{% endif %}"
+  id="VtStrip-{{ section.id }}"
+  data-vt-root
+>
+  <div class="vt__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="vt__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="vt__sub">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+
+    <div class="vt__wrap">
+      <div class="vt__strip" data-vt-strip>
+        {%- for block in section.blocks -%}
+          <div class="vt__slide" data-vt-slide {{ block.shopify_attributes }}>
+            <div class="vt__card" data-vt-card>
+              {%- if block.settings.video != blank -%}
+                {{
+                  block.settings.video
+                  | video_tag:
+                    image_size: '640x',
+                    controls: true,
+                    preload: 'none'
+                }}
+
+                {%- if block.settings.poster != blank -%}
+                  {%- assign poster_alt = block.settings.poster.alt -%}
+                  {%- if poster_alt == blank -%}
+                    {%- assign poster_alt = 'A customer unboxing their handmade crochet gift' -%}
+                  {%- endif -%}
+                  {{
+                    block.settings.poster
+                    | image_url: width: 600
+                    | image_tag:
+                      loading: 'lazy',
+                      class: 'vt__poster',
+                      widths: '200, 300, 400, 600',
+                      sizes: '(min-width: 990px) 220px, 45vw',
+                      alt: poster_alt
+                  }}
+                {%- endif -%}
+
+                <button type="button" class="vt__play" data-vt-play aria-label="{{ 'Play this customer video' | escape }}">
+                  <span class="vt__play-badge" aria-hidden="true">
+                    <svg viewBox="0 0 12 12" fill="currentColor" focusable="false">
+                      <path d="M2.5 1.2l8 4.8-8 4.8z"/>
+                    </svg>
+                  </span>
+                </button>
+              {%- else -%}
+                {{ 'lifestyle-2' | placeholder_svg_tag }}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <button type="button" class="vt__nav vt__nav--prev" data-vt-prev aria-label="{{ 'Scroll back' | escape }}" hidden>
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M10.5 2 4.5 8l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button type="button" class="vt__nav vt__nav--next" data-vt-next aria-label="{{ 'Scroll forward' | escape }}">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+          <path d="M5.5 2l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('VtStrip-{{ section.id }}');
+    if (!root || root.dataset.vtInit === 'true') return;
+    root.dataset.vtInit = 'true';
+
+    var strip = root.querySelector('[data-vt-strip]');
+    var prevBtn = root.querySelector('[data-vt-prev]');
+    var nextBtn = root.querySelector('[data-vt-next]');
+    if (!strip) return;
+
+    var cards = Array.prototype.slice.call(root.querySelectorAll('[data-vt-card]'));
+
+    /* ---------- play ---------- */
+
+    cards.forEach(function (card) {
+      var button = card.querySelector('[data-vt-play]');
+      var video = card.querySelector('video');
+      if (!button || !video) return;
+
+      button.addEventListener('click', function () {
+        // A drag that finishes over a card still fires a click. Ignore it.
+        if (strip.dataset.vtDragged === 'true') return;
+
+        cards.forEach(function (other) {
+          if (other === card) return;
+          var otherVideo = other.querySelector('video');
+          if (otherVideo && !otherVideo.paused) otherVideo.pause();
+        });
+
+        card.classList.add('is-playing');
+        video.setAttribute('preload', 'auto');
+
+        var started = video.play();
+        if (started && typeof started.catch === 'function') {
+          started.catch(function () {
+            // Autoplay policies can refuse a muted-less play on some browsers.
+            // Put the poster back so the card never looks broken.
+            card.classList.remove('is-playing');
+          });
+        }
+      });
+    });
+
+    /* ---------- drag to scroll ---------- */
+
+    var drag = null;
+
+    strip.addEventListener('pointerdown', function (event) {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      // Let touch keep the browser's own momentum scrolling.
+      if (event.pointerType === 'touch') return;
+
+      drag = { id: event.pointerId, x: event.clientX, left: strip.scrollLeft, moved: 0 };
+      strip.dataset.vtDragged = 'false';
+    });
+
+    strip.addEventListener('pointermove', function (event) {
+      if (drag === null || event.pointerId !== drag.id) return;
+
+      var dx = event.clientX - drag.x;
+      if (Math.abs(dx) < 4 && drag.moved === 0) return;
+
+      if (drag.moved === 0) {
+        strip.classList.add('is-dragging');
+        try { strip.setPointerCapture(drag.id); } catch (e) {}
+      }
+
+      drag.moved = dx;
+      strip.dataset.vtDragged = 'true';
+      strip.scrollLeft = drag.left - dx;
+    });
+
+    function endDrag(event) {
+      if (drag === null || event.pointerId !== drag.id) return;
+      drag = null;
+      strip.classList.remove('is-dragging');
+      // Cleared on the next frame so the click that follows this pointerup
+      // still sees the flag and gets swallowed.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { strip.dataset.vtDragged = 'false'; });
+      });
+    }
+
+    strip.addEventListener('pointerup', endDrag);
+    strip.addEventListener('pointercancel', endDrag);
+    strip.addEventListener('dragstart', function (event) { event.preventDefault(); });
+
+    /* ---------- arrows ---------- */
+
+    function stepSize() {
+      var slide = strip.querySelector('[data-vt-slide]');
+      if (!slide) return strip.clientWidth;
+      var gap = parseFloat(getComputedStyle(strip).columnGap) || 0;
+      return slide.getBoundingClientRect().width + gap;
+    }
+
+    function syncArrows() {
+      var max = strip.scrollWidth - strip.clientWidth;
+      if (prevBtn) prevBtn.hidden = strip.scrollLeft <= 1;
+      if (nextBtn) nextBtn.hidden = strip.scrollLeft >= max - 1;
+    }
+
+    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function nudge(direction) {
+      strip.scrollBy({
+        left: direction * stepSize(),
+        behavior: motionQuery.matches ? 'auto' : 'smooth'
+      });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { nudge(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { nudge(1); });
+
+    strip.addEventListener('scroll', function () {
+      if (strip.dataset.vtRaf === 'true') return;
+      strip.dataset.vtRaf = 'true';
+      requestAnimationFrame(function () {
+        strip.dataset.vtRaf = 'false';
+        syncArrows();
+      });
+    });
+
+    window.addEventListener('resize', syncArrows);
+    syncArrows();
+    if (document.readyState !== 'complete') window.addEventListener('load', syncArrows);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Video Testimonials",
+  "tag": "section",
+  "class": "vt-section",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Select a word and press italic to give it the handwritten accent font.",
+      "default": "<em>Real</em> Moments, <em>Real</em> Love!"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Bold reads as normal bold text. Italic gets the accent colour and highlight.",
+      "default": "Real families, real unboxings — every clip below was sent in by someone who ordered a <strong><em>Woolly Wishes</em></strong> keepsake."
+    },
+    {
+      "type": "header",
+      "content": "Accent font"
+    },
+    {
+      "type": "checkbox",
+      "id": "load_script_font",
+      "label": "Load the handwritten font",
+      "info": "Turn off to use your theme font instead. Adds one request to Google Fonts.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "script_font",
+      "label": "Handwritten font",
+      "options": [
+        { "value": "Yellowtail", "label": "Yellowtail — closest to the reference" },
+        { "value": "Pacifico", "label": "Pacifico — rounder, friendlier" },
+        { "value": "Kaushan+Script", "label": "Kaushan Script — brush, more slanted" },
+        { "value": "Satisfy", "label": "Satisfy — lighter, flowing" },
+        { "value": "Courgette", "label": "Courgette — tidy, less swash" }
+      ],
+      "default": "Yellowtail"
+    },
+    {
+      "type": "range",
+      "id": "script_scale",
+      "label": "Accent font size",
+      "info": "Handwritten fonts read smaller than block letters at the same size, so they usually need a nudge up.",
+      "min": 100,
+      "max": 150,
+      "step": 2,
+      "unit": "%",
+      "default": 118
+    },
+    {
+      "type": "header",
+      "content": "Strip"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Videos per view on desktop",
+      "info": "Tablet shows 3, mobile shows 2. A sliver of the next video always peeks in so people know it scrolls.",
+      "options": [
+        { "value": "4.2", "label": "4" },
+        { "value": "5.2", "label": "5" },
+        { "value": "6.2", "label": "6" }
+      ],
+      "default": "6.2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows on desktop",
+      "info": "The reference site has none, so mouse users have no obvious way to scroll. Turn off to match it exactly.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#178a3f"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight behind accent text",
+      "default": "#d8f3dd"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Video corner radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "clip",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video",
+          "info": "Upload a vertical clip (9:16). Anything else gets cropped to fit."
+        },
+        {
+          "type": "image_picker",
+          "id": "poster",
+          "label": "Cover image",
+          "info": "Optional. Without one, Shopify uses a frame from the video."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Testimonials",
+      "blocks": [
+        { "type": "clip" },
+        { "type": "clip" },
+        { "type": "clip" },
+        { "type": "clip" },
+        { "type": "clip" },
+        { "type": "clip" }
+      ]
+    }
+  ]
+}
+{% endschema %}
