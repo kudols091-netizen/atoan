@@ -60,6 +60,6 @@ These Terms are governed by the laws of the **State of Nevada, United States**, 
 ## Contact Us
 
 **JULY E LLC**
-Email: [ADD YOUR SUPPORT EMAIL]
+Email: k3.ecmsuport@gmail.com
 Phone: +1 213-584-2318
 Address: 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States

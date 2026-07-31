@@ -69,6 +69,6 @@ We may update this Privacy Policy from time to time. We will post the updated ve
 If you have questions about this Privacy Policy or our privacy practices, contact us at:
 
 **JULY E LLC**
-Email: [ADD YOUR SUPPORT EMAIL]
+Email: k3.ecmsuport@gmail.com
 Phone: +1 213-584-2318
 Address: 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States
