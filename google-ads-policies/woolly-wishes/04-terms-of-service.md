@@ -2,7 +2,7 @@
 
 **Last updated: July 31, 2026**
 
-Welcome to Woolly Wishes. These Terms of Service ("Terms") govern your access to and use of our store (the "Site"), operated by SELLER SPRINT LLC ("we", "us", "our"). By using the Site or placing an order, you agree to these Terms.
+Welcome to Woolly Wishes. These Terms of Service ("Terms") govern your access to and use of our store (the "Site"), operated by JULY E LLC ("we", "us", "our"). By using the Site or placing an order, you agree to these Terms.
 
 ## Eligibility
 
@@ -35,7 +35,7 @@ Delivery of products is governed by our **Shipping Policy**, and returns and ref
 
 ## Intellectual Property
 
-All content on the Site — including logos, text, images, and designs — is the property of SELLER SPRINT LLC or its licensors and is protected by intellectual property laws. You may not use it without our written permission.
+All content on the Site — including logos, text, images, and designs — is the property of JULY E LLC or its licensors and is protected by intellectual property laws. You may not use it without our written permission.
 
 ## Prohibited Uses
 
@@ -43,7 +43,7 @@ You agree not to use the Site for any unlawful purpose, to infringe our or other
 
 ## Limitation of Liability
 
-To the fullest extent permitted by law, SELLER SPRINT LLC shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Site or products. Our total liability shall not exceed the amount you paid for the product in question.
+To the fullest extent permitted by law, JULY E LLC shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Site or products. Our total liability shall not exceed the amount you paid for the product in question.
 
 ## Disclaimer of Warranties
 
@@ -55,11 +55,10 @@ We may update these Terms at any time. Changes are effective when posted on this
 
 ## Governing Law
 
-These Terms are governed by the laws of the **State of California, United States**, without regard to conflict-of-law principles.
+These Terms are governed by the laws of the **State of Nevada, United States**, without regard to conflict-of-law principles.
 
 ## Contact Us
 
-**SELLER SPRINT LLC**
-Email: info@luminouswand.com
-Phone: +1 760-909-8686
-Address: 1208 Corte Cielo, San Marcos, CA 92069, United States
+**JULY E LLC**
+Email: [ADD YOUR SUPPORT EMAIL]
+Address: 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States

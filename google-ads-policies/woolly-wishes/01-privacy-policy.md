@@ -2,7 +2,7 @@
 
 **Last updated: July 31, 2026**
 
-This Privacy Policy describes how SELLER SPRINT LLC ("Woolly Wishes", "we", "us", or "our") collects, uses, and discloses your personal information when you visit, use, or make a purchase from our store (the "Site") or otherwise communicate with us (collectively, the "Services").
+This Privacy Policy describes how JULY E LLC ("Woolly Wishes", "we", "us", or "our") collects, uses, and discloses your personal information when you visit, use, or make a purchase from our store (the "Site") or otherwise communicate with us (collectively, the "Services").
 
 ## Information We Collect
 
@@ -68,7 +68,6 @@ We may update this Privacy Policy from time to time. We will post the updated ve
 
 If you have questions about this Privacy Policy or our privacy practices, contact us at:
 
-**SELLER SPRINT LLC**
-Email: info@luminouswand.com
-Address: 1208 Corte Cielo, San Marcos, CA 92069, United States
-Phone: +1 760-909-8686
+**JULY E LLC**
+Email: [ADD YOUR SUPPORT EMAIL]
+Address: 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States

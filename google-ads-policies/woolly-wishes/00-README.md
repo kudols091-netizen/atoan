@@ -1,70 +1,101 @@
 # Policy set — Woolly Wishes (store `2xwptb-f5`)
 
-Bộ policy riêng cho **store len Woolly Wishes**. Dán vào Shopify Admin →
-Settings → Policies, riêng Contact tạo qua Online Store → Pages.
+Bộ policy riêng cho **store len Woolly Wishes**, pháp nhân **JULY E LLC (Nevada)**.
 
-> Bộ ở thư mục cha (`../01`…`../05`) là của **Luminouswand — store activewear khác**.
+> Bộ ở thư mục cha (`../01`…`../05`) là của **Luminouswand — store activewear**, pháp nhân
+> **SELLER SPRINT LLC (California)**. Hai pháp nhân khác nhau, hai bang khác nhau.
 > Không dùng lẫn, không ghi đè lên nhau.
 
-## Vì sao có bộ này
+## Thông tin doanh nghiệp (đã điền vào cả 5 file)
 
-Trang sản phẩm Woolly Wishes ghi *"handmade to order, allow 1–3 weeks for crafting"*,
-trong khi policy Luminouswand ghi *"processed within 1–3 business days"*. Hai con số này
-đá nhau, và Google Ads có đối chiếu trang sản phẩm với trang policy khi review landing
-page. Bộ này viết theo **mô hình làm-theo-đơn thật** của store len.
+| | |
+|---|---|
+| Pháp nhân | **JULY E LLC** |
+| Địa chỉ | 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States |
+| Governing law | **State of Nevada** |
+| Email | ⚠️ `[ADD YOUR SUPPORT EMAIL]` — chưa có |
+| Điện thoại | Không có → đã bỏ hẳn dòng phone, không để số của store khác |
 
 ## 3 chỗ đã chốt
 
 | Hạng mục | Giá trị | Căn cứ |
 |---|---|---|
 | Thời gian làm | **1–3 tuần** | Theo mô tả sản phẩm đang chạy |
-| Thời gian giao | 7–15 ngày làm việc | Giữ như bộ Luminouswand |
-| **Tổng** | **~3–6 tuần** | Ghi rõ vì đây là con số khách thực sự quan tâm |
-| Free shipping | **Free từ $49**, dưới đó $4.99 | Giữ như bộ Luminouswand |
-| Thị trường | US · UK · Canada | Giữ như bộ Luminouswand |
-| Return window | 30 ngày | Giữ như bộ Luminouswand |
+| Thời gian giao | 7–15 ngày làm việc | |
+| **Tổng** | **~3–6 tuần** | Ghi rõ vì đây là con số khách thực sự đếm |
+| Free shipping | **Free từ $49**, dưới đó $4.99 | |
+| Thị trường | US · UK · Canada | |
+| Return window | 30 ngày | |
 
-## ⚠️ 3 việc PHẢI làm trước khi chạy Ads
+## ⚠️ 2 việc PHẢI làm trước khi chạy Ads
 
-1. **Announcement bar đang sai.** `ke_hoach_website.md` ghi *"Free US shipping"* không điều
-   kiện, policy ghi *free từ $49*. Sửa announcement bar thành **"Free US shipping over $49"**.
-   Ngưỡng $49 còn có lợi: sản phẩm đang ~$25 nên khách có lý do mua 2.
+1. **Điền email hỗ trợ.** Cả 5 file đang để `[ADD YOUR SUPPORT EMAIL]`. Tôi cố tình không
+   tự điền: email cũ `info@luminouswand.com` là hòm thư của **SELLER SPRINT LLC**, một pháp
+   nhân khác — đặt nó lên trang của JULY E LLC là sai. Điền địa chỉ bạn thật sự đọc được.
+   Google Ads bắt buộc có **ít nhất một kênh liên hệ hoạt động**; form Contact của Shopify
+   cũng tính, nhưng có email vẫn tốt hơn.
 
-2. **Email liên hệ đang là `info@luminouswand.com`** — hòm thư của store khác. Tôi cố tình
-   giữ nguyên vì nó **đang hoạt động thật**; điền một địa chỉ Woolly Wishes chưa tồn tại thì
-   khách gửi mail vào hư không và Google Ads đánh trượt vì không có kênh liên hệ hoạt động.
-   Khi có domain/hòm thư riêng thì thay ở cả 5 file.
+2. **Announcement bar đang sai.** `ke_hoach_website.md` ghi *"Free US shipping"* không điều
+   kiện, policy ghi *free từ $49*. Sửa thành **"Free US shipping over $49"**. Ngưỡng $49 còn
+   có lợi: sản phẩm ~$25 nên khách có lý do mua 2.
 
-3. **Chốt lại thời gian làm là 1–3 tuần có đúng không.** Tôi lấy theo mô tả sản phẩm.
-   Nếu thực tế khác, sửa ở đây **và** ở mô tả sản phẩm cùng lúc — hai chỗ phải luôn khớp.
+Và một chỗ cần bạn tự xác nhận: **1–3 tuần làm tay có đúng không.** Tôi lấy theo mô tả sản
+phẩm. Nếu sai, sửa **cả hai chỗ cùng lúc** — policy và mô tả sản phẩm phải luôn khớp, chính
+chỗ lệch nhau này là thứ đã gây ra mớ mâu thuẫn ban đầu.
+
+## Cách đăng lên site + footer
+
+Policy (01–04) **không phải Pages** — Shopify có chỗ riêng, và nó tự sinh link
+`/policies/...` dùng được cả ở checkout.
+
+1. **Settings → Policies** → dán 4 file:
+   - Privacy policy ← `01-privacy-policy.md`
+   - Refund policy ← `02-refund-return-policy.md`
+   - Shipping policy ← `03-shipping-policy.md`
+   - Terms of service ← `04-terms-of-service.md`
+   → **Save**
+2. **Online Store → Pages → Add page** → tiêu đề `Contact`, dán `05-contact-page.md`.
+   Bên phải chọn template `page.contact` để có sẵn form gửi mail → **Save**.
+3. **Online Store → Navigation → Footer menu → Add menu item** (5 mục):
+
+   | Name | Link |
+   |---|---|
+   | Contact | Pages → Contact |
+   | Shipping Policy | Policies → Shipping policy |
+   | Refund Policy | Policies → Refund policy |
+   | Privacy Policy | Policies → Privacy policy |
+   | Terms of Service | Policies → Terms of service |
+
+   → **Save menu**
+4. **Theme Editor → Footer** → kiểm tra block menu đang trỏ vào **Footer menu**.
+   Shrine Pro có thể đang trỏ vào menu khác.
+5. Mở thử trang chủ, bấm từng link ở footer xem có 404 không.
 
 ## Khác gì so với bộ Luminouswand
 
-Ngoài thời gian giao, bộ này thêm phần mà bán đồ len làm tay thì bắt buộc phải có:
+Ngoài pháp nhân và thời gian giao, bộ này thêm phần mà bán đồ len làm tay bắt buộc phải có:
 
-- **Sai khác giữa các sản phẩm** — mũi đan, biểu cảm, lô nhuộm không bao giờ giống hệt nhau.
-  Ghi rõ đây không phải lỗi, nhưng bung chỉ / mắt lỏng / sai hàng thì vẫn bảo hành.
-- **Hàng làm từ ảnh khách** — không đổi trả vì đổi ý (không bán lại được cho ai khác), nhưng
-  vẫn bảo hành nếu lỗi.
+- **Sai khác giữa các sản phẩm** — mũi đan, biểu cảm, lô nhuộm không bao giờ giống hệt.
+  Ghi rõ không phải lỗi, nhưng bung chỉ / mắt lỏng / sai hàng thì vẫn bảo hành.
+- **Hàng làm từ ảnh khách** — không đổi trả vì đổi ý, vẫn bảo hành nếu lỗi.
 - **Huỷ đơn trong 24h** — vì bắt đầu làm ngay sau khi đặt.
-- **Ảnh khách gửi** (Privacy + Terms) — chỉ dùng để làm đơn hàng, không đăng, không quảng cáo
+- **Ảnh khách gửi** (Privacy + Terms) — chỉ dùng để làm đơn, không đăng, không quảng cáo
   nếu chưa xin phép bằng văn bản. Có nhắc riêng trường hợp ảnh trẻ em.
-- **Đồ chơi có chi tiết nhỏ** — nhắc giám sát trẻ nhỏ, xem hướng dẫn độ tuổi ở trang sản phẩm.
+- **Đồ chơi có chi tiết nhỏ** — nhắc giám sát trẻ nhỏ, xem độ tuổi ở trang sản phẩm.
 
 ## Checklist
 
+- [ ] Điền email hỗ trợ vào cả 5 file
 - [ ] Sửa announcement bar → "Free US shipping over $49"
 - [ ] Xác nhận 1–3 tuần là con số thật
-- [ ] Dán 01 Privacy → Settings → Policies
-- [ ] Dán 02 Refund/Return → Settings → Policies
-- [ ] Dán 03 Shipping → Settings → Policies
-- [ ] Dán 04 Terms → Settings → Policies
-- [ ] Tạo trang Contact từ 05
-- [ ] Link cả 5 trang vào footer
+- [ ] Dán 01–04 vào Settings → Policies
+- [ ] Tạo trang Contact từ 05 (template `page.contact`)
+- [ ] Thêm 5 mục vào Footer menu
+- [ ] Theme Editor → Footer trỏ đúng vào Footer menu
+- [ ] Bấm thử từng link, không có 404
 - [ ] Shipping settings trong Merchant Center khớp với 03
 - [ ] Return policy trong Merchant Center khớp với 02
 - [ ] Ghi độ tuổi khuyến cáo lên từng trang sản phẩm đồ chơi
-- [ ] Thay email khi có hòm thư Woolly Wishes
 
 Đây là **bản mẫu tham khảo, không phải tư vấn pháp lý**. Rà lại theo nghĩa vụ thật của bạn
 trước khi công bố.

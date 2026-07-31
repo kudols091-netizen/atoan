@@ -50,7 +50,6 @@ If your order has not arrived within the estimated timeframe, contact us and we 
 
 ## Contact Us
 
-**SELLER SPRINT LLC**
-Email: info@luminouswand.com
-Phone: +1 760-909-8686
-Address: 1208 Corte Cielo, San Marcos, CA 92069, United States
+**JULY E LLC**
+Email: [ADD YOUR SUPPORT EMAIL]
+Address: 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States

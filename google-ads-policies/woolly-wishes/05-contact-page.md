@@ -4,8 +4,7 @@ Every doll here is made by the people who answer this inbox. Questions about siz
 
 ## Get in Touch
 
-- **Email:** info@luminouswand.com
-- **Phone:** +1 760-909-8686
+- **Email:** [ADD YOUR SUPPORT EMAIL]
 - **Response time:** We aim to reply to every message within 1 business day.
 
 ## Customer Support Hours
@@ -15,8 +14,8 @@ Every doll here is made by the people who answer this inbox. Questions about siz
 
 ## Business Information
 
-**SELLER SPRINT LLC**
-1208 Corte Cielo, San Marcos, CA 92069, United States
+**JULY E LLC**
+304 S Jones Blvd 3587, Las Vegas, NV 89107, United States
 
 ## Before You Write
 
