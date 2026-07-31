@@ -123,7 +123,7 @@ Ngoài pháp nhân và thời gian giao, bộ này có thêm phần mà bán đ�
 - **Hàng làm từ ảnh khách** — không đổi trả vì đổi ý, vẫn bảo hành nếu lỗi.
 - **Huỷ đơn trong 24h** — vì bắt đầu làm ngay sau khi đặt.
 - **Ảnh khách gửi** — chỉ dùng để làm đơn, không đăng, không quảng cáo nếu chưa xin phép.
-  Có nhắc riêng ảnh trẻ em. *(Phần này nằm trong Privacy — chưa đăng được.)*
+  Có nhắc riêng ảnh trẻ em. *(Nằm trong Privacy policy — đã đăng.)*
 - **Đồ chơi có chi tiết nhỏ** — nhắc giám sát trẻ nhỏ.
 
 Đây là **bản mẫu tham khảo, không phải tư vấn pháp lý**.
