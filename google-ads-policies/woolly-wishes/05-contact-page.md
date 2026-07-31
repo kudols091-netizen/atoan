@@ -5,6 +5,7 @@ Every doll here is made by the people who answer this inbox. Questions about siz
 ## Get in Touch
 
 - **Email:** [ADD YOUR SUPPORT EMAIL]
+- **Phone:** +1 213-584-2318
 - **Response time:** We aim to reply to every message within 1 business day.
 
 ## Customer Support Hours

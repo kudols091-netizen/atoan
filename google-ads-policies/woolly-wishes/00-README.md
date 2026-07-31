@@ -13,8 +13,27 @@ Bộ policy riêng cho **store len Woolly Wishes**, pháp nhân **JULY E LLC (Ne
 | Pháp nhân | **JULY E LLC** |
 | Địa chỉ | 304 S Jones Blvd 3587, Las Vegas, NV 89107, United States |
 | Governing law | **State of Nevada** |
+| Điện thoại | +1 213-584-2318 |
 | Email | ⚠️ `[ADD YOUR SUPPORT EMAIL]` — chưa có |
-| Điện thoại | Không có → đã bỏ hẳn dòng phone, không để số của store khác |
+
+Số điện thoại lấy từ **Settings → General → Business details** của chính store này, không
+phải số của Luminouswand. Có phone rồi thì Google Ads đã có một kênh liên hệ hoạt động,
+nhưng vẫn nên bổ sung email.
+
+## Nếu muốn tôi tự đăng lên store
+
+Cần một **Admin API access token**: Settings → Apps and sales channels → **Develop apps** →
+Create an app → Configuration → Admin API scopes, tick đúng 3 scope dưới → Install app →
+copy token `shpat_...` → dán vào `.env` dòng `SHOPIFY_ACCESS_TOKEN=`.
+
+| Việc | Mutation | Scope cần tick |
+|---|---|---|
+| Dán 4 policy | `shopPolicyUpdate` | `write_legal_policies` |
+| Tạo trang Contact | `pageCreate` | `write_content` |
+| Dựng Footer menu | `menuCreate` / `menuUpdate` | `write_online_store_navigation` |
+
+Chỉ 3 scope này, không cần cấp thêm. Token đó đọc/ghi được store nên đừng dán vào chat hay
+commit lên git — `.env` nằm ngoài repo nên an toàn.
 
 ## 3 chỗ đã chốt
 
