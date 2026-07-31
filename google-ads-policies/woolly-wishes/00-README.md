@@ -11,29 +11,22 @@ Bộ policy cho **store len Woolly Wishes**, pháp nhân **JULY E LLC (Nevada)**
 
 | Mục | Trạng thái |
 |---|---|
-| Refund policy | ✅ đã ghi đè `/policies/refund-policy` |
-| Shipping policy | ✅ đã ghi đè `/policies/shipping-policy` |
-| Terms of service | ✅ đã ghi đè `/policies/terms-of-service` |
-| **Privacy policy** | ❌ **chưa** — xem mục dưới |
-| Trang Contact | ✅ `/pages/contact`, template `page.contact` |
+| Privacy policy | ✅ `/policies/privacy-policy` |
+| Refund policy | ✅ `/policies/refund-policy` |
+| Shipping policy | ✅ `/policies/shipping-policy` |
+| Terms of service | ✅ `/policies/terms-of-service` |
+| Trang Contact | ✅ `/pages/contact`, template `contact`, published |
 | Footer menu | ✅ 10 mục, xem dưới |
 
-### ⚠️ Privacy policy chưa đăng được
+Privacy policy lúc đầu bị Shopify khoá (*Automatic management*); sau khi tắt đã ghi đè được.
+Bản này có đoạn **Photos for Custom Orders** mà bản Shopify tự sinh không có — quan trọng vì
+store nhận ảnh khách gửi để làm búp bê, gồm cả ảnh trẻ em.
 
-Shopify trả về:
+### Kết quả audit (đọc ngược từ Shopify)
 
-> *Automatic management for Privacy Policy must be turned off in order to make changes.*
-
-Store đang bật **tự động quản lý** privacy policy — Shopify tự sinh nội dung và khoá không
-cho ghi đè. Muốn dùng bản trong `01-privacy-policy.md`:
-
-**Settings → Policies → Privacy policy → tắt "Automatic management"** → rồi báo tôi, hoặc
-tự dán nội dung file vào.
-
-Cân nhắc: bản Shopify tự sinh cũng hợp lệ và tự cập nhật theo luật. Nhưng nó **không có**
-đoạn về **ảnh khách gửi cho đơn hàng làm từ ảnh** — mà đó là dữ liệu nhạy cảm nhất store này
-thu thập, và có cả ảnh trẻ em. Nếu bán dịch vụ làm búp bê từ ảnh thì nên tắt tự động và dùng
-bản riêng.
+Cả 4 policy: đúng pháp nhân **JULY E LLC**, đúng địa chỉ Las Vegas NV, đúng email
+`k3.ecmsuport@gmail.com`. Shipping policy có `$49` và `1–3 weeks`. Footer có đủ 5 link bắt
+buộc. Theme MAIN: announcement `Free US shipping over $49`, `goal_1_amount: 49`.
 
 ## Thông tin doanh nghiệp
 
@@ -110,7 +103,7 @@ rate thật khác thì policy, announcement bar và thanh tiến trình đều s
 
 ## Còn phải làm
 
-- [ ] **Tắt Automatic management** cho Privacy policy rồi đăng `01-privacy-policy.md`
+- [x] ~~Tắt Automatic management cho Privacy policy~~ → đã đăng 2026-07-31
 - [ ] **Xác minh shipping rate thật** khớp $49
 - [ ] **Kiểm tra goal_2 / goal_3** có discount thật không
 - [ ] **Xác nhận 1–3 tuần** có đúng không. Nếu sai phải sửa **cả policy lẫn mô tả sản phẩm**
