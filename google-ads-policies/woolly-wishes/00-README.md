@@ -79,11 +79,40 @@ của chính store — tức là địa chỉ Shopify vốn đã dùng cho store
 > lại. About Us / FAQ / Contact Us trước đây là kiểu `HTTP`, khôi phục lại thành `PAGE` trỏ
 > đúng trang đó — link ra giống hệt và bền hơn khi đổi handle.
 
+## Ngưỡng free shipping — đã đồng bộ (2026-07-31)
+
+Policy ghi **free từ $49**. Rà theme `shrine-theme-pro-v1-6-1` (MAIN) thì thấy **hai** chỗ
+nói khác nhau, đã sửa cả hai qua `themeFilesUpsert`:
+
+| File | Trước | Sau |
+|---|---|---|
+| `sections/header-group.json` → `ann_2` | `Free shipping across the US` (vô điều kiện) | `Free US shipping over $49` |
+| `config/settings_data.json` → `goal_1_amount` | `40` | `49` |
+
+`goal_1` là mốc trên thanh tiến trình giỏ hàng. Trước đây nó hứa free ship từ **$40** trong
+khi policy ghi $49 — khách đạt $40 sẽ thấy "đã mở khoá free shipping" rồi bị tính phí ở
+checkout.
+
+### ⚠️ Hai mốc còn lại chưa xác minh
+
+Cùng thanh đó còn `goal_2` = **20% OFF từ $60** và `goal_3` = **Free Gift từ $80**, đều đang
+bật. Nếu trong Shopify **không có discount tự động** tương ứng thì giỏ hàng đang hứa hai thứ
+không tồn tại — tệ hơn cả vụ $40, vì khách cố mua thêm cho đủ mốc rồi không nhận được gì.
+
+Kiểm tra: **Discounts** → có automatic discount 20% từ $60 và quà tặng từ $80 không. Không có
+thì tắt `enable_goal_2` / `enable_goal_3` trong Theme Editor.
+
+### ⚠️ Chưa kiểm tra được: shipping rate thật
+
+Phiên đăng nhập không xin scope `read_shipping` nên tôi **không đọc được** biểu phí thật.
+Vào **Settings → Shipping and delivery** xác nhận có rate *free từ $49* cho US/UK/CA. Nếu
+rate thật khác thì policy, announcement bar và thanh tiến trình đều sai theo.
+
 ## Còn phải làm
 
 - [ ] **Tắt Automatic management** cho Privacy policy rồi đăng `01-privacy-policy.md`
-- [ ] **Sửa announcement bar** → `Free US shipping over $49`. Hiện `ke_hoach_website.md` ghi
-      free không điều kiện, đá nhau với policy vừa đăng.
+- [ ] **Xác minh shipping rate thật** khớp $49
+- [ ] **Kiểm tra goal_2 / goal_3** có discount thật không
 - [ ] **Xác nhận 1–3 tuần** có đúng không. Nếu sai phải sửa **cả policy lẫn mô tả sản phẩm**
       cùng lúc — chỗ lệch nhau này chính là thứ gây ra mớ mâu thuẫn ban đầu.
 - [ ] **Theme Editor → Footer** kiểm tra block menu đang trỏ vào **Footer**, không phải menu khác
