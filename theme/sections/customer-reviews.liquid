@@ -1,0 +1,746 @@
+{%- liquid
+  assign review_count = 0
+  assign rating_total = 0
+  for block in section.blocks
+    assign review_count = review_count | plus: 1
+    assign rating_total = rating_total | plus: block.settings.rating
+  endfor
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --cr-bg: {{ section.settings.section_bg | default: 'rgba(0,0,0,0)' }};
+    --cr-card: {{ section.settings.card_bg }};
+    --cr-heading: {{ section.settings.heading_color }};
+    --cr-text: {{ section.settings.text_color }};
+    --cr-meta: {{ section.settings.meta_color }};
+    --cr-name: {{ section.settings.name_color }};
+    --cr-star: {{ section.settings.star_color }};
+    --cr-badge-bg: {{ section.settings.verified_bg }};
+    --cr-badge-text: {{ section.settings.verified_text }};
+    --cr-btn-bg: {{ section.settings.button_bg }};
+    --cr-btn-text: {{ section.settings.button_text }};
+    --cr-radius: {{ section.settings.card_radius }}px;
+    --cr-cols: {{ section.settings.columns_desktop }};
+    --cr-pad-top: {{ section.settings.padding_top }}px;
+    --cr-pad-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  .cr {
+    background: var(--cr-bg);
+    padding-top: calc(var(--cr-pad-top) * 0.7);
+    padding-bottom: calc(var(--cr-pad-bottom) * 0.7);
+  }
+
+  .cr__inner {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .cr__panel {
+    background: var(--cr-card);
+    border-radius: var(--cr-radius);
+    padding: 24px 20px;
+    margin-bottom: 16px;
+  }
+
+  .cr__summary { text-align: center; }
+
+  .cr__heading {
+    margin: 0 0 14px;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--cr-heading);
+  }
+
+  .cr__score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cr__score-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    color: var(--cr-text);
+  }
+
+  .cr__count {
+    font-size: 16px;
+    color: var(--cr-text);
+  }
+
+  .cr__button {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 30px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--cr-btn-bg);
+    color: var(--cr-btn-text);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .cr__button:hover { opacity: 0.9; }
+
+  /* Whole-star ratings are drawn star by star so nothing has to line up.
+     Only the average, which can be fractional, uses a clipped overlay — and
+     that one drops the gap so the percentage maps straight onto star width. */
+  .cr__stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    line-height: 0;
+    color: var(--cr-star);
+  }
+
+  .cr__stars svg {
+    display: block;
+    flex: none;
+  }
+
+  .cr__stars--avg {
+    position: relative;
+    gap: 0;
+  }
+
+  .cr__stars-track {
+    display: flex;
+    gap: 0;
+    width: max-content;
+  }
+
+  .cr__stars-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+  }
+
+  .cr__sortbar { display: none; }
+
+  .cr__sortbar--on {
+    display: block;
+    background: var(--cr-card);
+    border-radius: var(--cr-radius);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+
+  .cr__sortbar select {
+    border: 0;
+    background: transparent;
+    color: var(--cr-name);
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  .cr__grid { column-count: 1; column-gap: 16px; }
+
+  .cr__card {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    background: var(--cr-card);
+    border-radius: var(--cr-radius);
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  .cr__card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .cr__date { font-size: 14px; color: var(--cr-meta); }
+
+  .cr__who {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .cr__author {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cr-name);
+  }
+
+  .cr__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--cr-badge-bg);
+    color: var(--cr-badge-text);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .cr__media { margin-bottom: 12px; }
+
+  .cr__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  .cr__thumbs {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .cr__thumbs img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  .cr__title {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--cr-heading);
+  }
+
+  .cr__body {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--cr-text);
+  }
+
+  .cr__body > *:first-child { margin-top: 0; }
+  .cr__body > *:last-child { margin-bottom: 0; }
+
+  .cr__body--clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: var(--cr-clamp, 6);
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cr__more {
+    display: none;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cr-name);
+    font-size: 15px;
+    font-family: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .cr__more--on { display: inline-block; }
+
+  .cr__empty {
+    padding: 28px 20px;
+    border: 1px dashed var(--cr-meta);
+    border-radius: var(--cr-radius);
+    text-align: center;
+    font-size: 15px;
+    color: var(--cr-meta);
+  }
+
+  @media screen and (min-width: 750px) {
+    .cr {
+      padding-top: var(--cr-pad-top);
+      padding-bottom: var(--cr-pad-bottom);
+    }
+
+    .cr__panel { padding: 30px; margin-bottom: 20px; }
+    .cr__heading { font-size: 32px; margin-bottom: 18px; }
+
+    /* Score block and button sit side by side with a rule between them. */
+    .cr__summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .cr__summary-row .cr__button { margin-top: 0; }
+
+    .cr__summary-row--split .cr__score {
+      padding-right: 40px;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .cr__grid { column-count: var(--cr-cols); column-gap: 20px; }
+    .cr__card { padding: 22px; margin-bottom: 20px; }
+  }
+{%- endstyle -%}
+
+{%- capture star_outline -%}
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 1.8l2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7 1-5.6-4.1-3.9 5.6-.8z"/></svg>
+{%- endcapture -%}
+
+{%- capture star_solid -%}
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M10 1.8l2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7 1-5.6-4.1-3.9 5.6-.8z"/></svg>
+{%- endcapture -%}
+
+{%- comment -%}
+  With no reviews entered there is nothing honest to show, so the section
+  disappears from the live page entirely rather than leaving a bare heading.
+  It stays visible in the editor so it can still be found and filled in.
+{%- endcomment -%}
+{%- if review_count > 0 or request.design_mode -%}
+<div class="cr">
+  <div class="cr__inner">
+    {%- liquid
+      assign has_score = false
+      if section.settings.rating_score != blank
+        assign has_score = true
+      endif
+      assign has_button = false
+      if section.settings.button_label != blank and section.settings.button_link != blank
+        assign has_button = true
+      endif
+    -%}
+
+    {%- if section.settings.heading != blank or has_score or has_button -%}
+      <div class="cr__panel cr__summary">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="cr__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        <div class="cr__summary-row{% if has_score and has_button %} cr__summary-row--split{% endif %}">
+          {%- if has_score -%}
+            {%- assign score_pct = section.settings.rating_score | times: 20.0 -%}
+            <div class="cr__score">
+              <div class="cr__score-line">
+                <span class="cr__stars cr__stars--avg" role="img" aria-label="{{ section.settings.rating_score }} out of 5 stars">
+                  <span class="cr__stars-track" aria-hidden="true">{{ star_outline }}{{ star_outline }}{{ star_outline }}{{ star_outline }}{{ star_outline }}</span>
+                  <span class="cr__stars-fill" style="width: {{ score_pct }}%;" aria-hidden="true">
+                    <span class="cr__stars-track">{{ star_solid }}{{ star_solid }}{{ star_solid }}{{ star_solid }}{{ star_solid }}</span>
+                  </span>
+                </span>
+                <span>{{ section.settings.rating_score }} out of 5</span>
+              </div>
+
+              {%- if section.settings.rating_count != blank -%}
+                <div class="cr__count">Based on {{ section.settings.rating_count }} reviews</div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if has_button -%}
+            <a class="cr__button" href="{{ section.settings.button_link }}">{{ section.settings.button_label }}</a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_sort and review_count > 1 -%}
+      <div class="cr__sortbar cr__sortbar--on">
+        <select aria-label="Sort reviews" data-cr-sort>
+          <option value="default">Most recent</option>
+          <option value="pictures">Pictures first</option>
+          <option value="rating">Highest rating</option>
+        </select>
+      </div>
+    {%- endif -%}
+
+    <div class="cr__grid" data-cr-grid>
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign has_image = false
+          if block.settings.image != blank
+            assign has_image = true
+          endif
+        -%}
+        <article
+          class="cr__card"
+          data-cr-card
+          data-rating="{{ block.settings.rating }}"
+          data-has-image="{% if has_image %}1{% else %}0{% endif %}"
+          data-index="{{ forloop.index0 }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="cr__card-top">
+            <span class="cr__stars" role="img" aria-label="{{ block.settings.rating }} out of 5 stars">
+              {%- for i in (1..5) -%}
+                {%- if i <= block.settings.rating -%}{{ star_solid }}{%- else -%}{{ star_outline }}{%- endif -%}
+              {%- endfor -%}
+            </span>
+
+            {%- if block.settings.date != blank -%}
+              <span class="cr__date">{{ block.settings.date }}</span>
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.author != blank -%}
+            <div class="cr__who">
+              <span class="cr__author">{{ block.settings.author }}</span>
+              {%- if block.settings.verified -%}
+                <span class="cr__badge">Verified</span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if has_image -%}
+            <div class="cr__media">
+              {{
+                block.settings.image
+                | image_url: width: 900
+                | image_tag: loading: 'lazy', widths: '300, 500, 700, 900', sizes: '(min-width: 750px) 33vw, 90vw', alt: block.settings.image.alt
+              }}
+
+              {%- if block.settings.image_2 != blank -%}
+                <div class="cr__thumbs">
+                  {{
+                    block.settings.image_2
+                    | image_url: width: 144
+                    | image_tag: loading: 'lazy', widths: '96, 144', sizes: '48px', alt: block.settings.image_2.alt
+                  }}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if block.settings.title != blank -%}
+            <h3 class="cr__title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+
+          {%- if block.settings.body != blank -%}
+            <div
+              class="cr__body cr__body--clamped"
+              data-cr-body
+              style="--cr-clamp: {{ section.settings.clamp_lines }};"
+            >{{ block.settings.body }}</div>
+            <button type="button" class="cr__more" data-cr-more>Read more</button>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+
+    {%- if review_count == 0 and request.design_mode -%}
+      <div class="cr__empty">
+        No reviews yet. Add a Review block for each real review you've received — this section stays empty on the live page until you do.
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+{%- endif -%}
+
+<script>
+  (function () {
+    var root = document.getElementById('shopify-section-{{ section.id }}');
+    if (!root) return;
+
+    var grid = root.querySelector('[data-cr-grid]');
+
+    // "Read more" only appears where the text is actually cut off.
+    function wireClamps() {
+      root.querySelectorAll('[data-cr-body]').forEach(function (body) {
+        var btn = body.parentNode.querySelector('[data-cr-more]');
+        if (!btn) return;
+        if (body.scrollHeight - body.clientHeight > 2) {
+          btn.classList.add('cr__more--on');
+        } else {
+          btn.classList.remove('cr__more--on');
+        }
+        if (btn.dataset.wired) return;
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', function () {
+          var open = body.classList.toggle('cr__body--clamped');
+          btn.textContent = open ? 'Read more' : 'Show less';
+        });
+      });
+    }
+
+    var sort = root.querySelector('[data-cr-sort]');
+    if (sort && grid) {
+      sort.addEventListener('change', function () {
+        var cards = Array.prototype.slice.call(grid.querySelectorAll('[data-cr-card]'));
+        var mode = sort.value;
+        cards.sort(function (a, b) {
+          var ai = parseInt(a.dataset.index, 10);
+          var bi = parseInt(b.dataset.index, 10);
+          if (mode === 'pictures') {
+            var diff = Number(b.dataset.hasImage) - Number(a.dataset.hasImage);
+            if (diff !== 0) return diff;
+          } else if (mode === 'rating') {
+            var r = Number(b.dataset.rating) - Number(a.dataset.rating);
+            if (r !== 0) return r;
+          }
+          return ai - bi;
+        });
+        cards.forEach(function (c) { grid.appendChild(c); });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wireClamps);
+    } else {
+      wireClamps();
+    }
+    window.addEventListener('resize', wireClamps);
+    document.addEventListener('shopify:section:load', wireClamps);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Customer reviews",
+  "tag": "section",
+  "class": "customer-reviews-section",
+  "max_blocks": 30,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Customer Reviews"
+    },
+    {
+      "type": "paragraph",
+      "content": "Leave the score and count empty until you have real reviews. Both are shown to customers exactly as typed."
+    },
+    {
+      "type": "text",
+      "id": "rating_score",
+      "label": "Average score",
+      "info": "For example 4.9. Leave empty to hide the summary."
+    },
+    {
+      "type": "text",
+      "id": "rating_count",
+      "label": "Number of reviews",
+      "info": "Leave empty to hide the count."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Write a review"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "The button is hidden until this is filled in. Point it at your contact page or a mailto: link."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": "Show the sort dropdown",
+      "info": "Only appears when there are two or more reviews.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "clamp_lines",
+      "label": "Lines before \"Read more\"",
+      "min": 3,
+      "max": 14,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section background",
+      "info": "Leave empty to sit on the page background.",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Headings",
+      "default": "#3a3a3a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Review text",
+      "default": "#3a3a3a"
+    },
+    {
+      "type": "color",
+      "id": "meta_color",
+      "label": "Date",
+      "default": "#8a8a8a"
+    },
+    {
+      "type": "color",
+      "id": "name_color",
+      "label": "Reviewer name and links",
+      "default": "#e0728c"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Stars",
+      "default": "#e8a33d"
+    },
+    {
+      "type": "color",
+      "id": "verified_bg",
+      "label": "Verified badge background",
+      "default": "#9cc4a6"
+    },
+    {
+      "type": "color",
+      "id": "verified_text",
+      "label": "Verified badge text",
+      "default": "#23402c"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#e0728c"
+    },
+    {
+      "type": "color",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Enter a real review only. Publishing invented reviews carries FTC penalties in the US and is grounds for a Google Ads suspension."
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Reviewer name"
+        },
+        {
+          "type": "checkbox",
+          "id": "verified",
+          "label": "Show the Verified badge",
+          "info": "Only tick this where the reviewer actually placed an order.",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Date",
+          "info": "Shown exactly as typed, for example 07/26/26."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Review title"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Review text"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Customer photo"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Second photo",
+          "info": "Optional. Shown as a small thumbnail under the first."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer reviews"
+    }
+  ]
+}
+{% endschema %}
