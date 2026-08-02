@@ -1,0 +1,369 @@
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --faq-width: {{ section.settings.content_width }}px;
+    --faq-heading-color: {{ section.settings.heading_color }};
+    --faq-question-color: {{ section.settings.question_color }};
+    --faq-answer-color: {{ section.settings.answer_color }};
+    --faq-rule: {{ section.settings.rule_color }};
+    --faq-heading-size: {{ section.settings.heading_size }}px;
+    --faq-question-size: {{ section.settings.question_size }}px;
+    --faq-pad-top: {{ section.settings.padding_top }}px;
+    --faq-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --faq-bg: {{ section.settings.background | default: 'rgba(0,0,0,0)' }};
+  }
+
+  .faq {
+    background: var(--faq-bg);
+    padding-top: calc(var(--faq-pad-top) * 0.7);
+    padding-bottom: calc(var(--faq-pad-bottom) * 0.7);
+  }
+
+  .faq__inner {
+    max-width: var(--faq-width);
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .faq__heading {
+    margin: 0 0 22px;
+    font-size: calc(var(--faq-heading-size) * 0.82);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--faq-heading-color);
+    text-align: {{ section.settings.heading_alignment }};
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--faq-rule);
+  }
+
+  /* Strip the native disclosure triangle so the plus sign is the only affordance. */
+  .faq__question {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 2px;
+    cursor: pointer;
+    font-size: calc(var(--faq-question-size) * 0.88);
+    line-height: 1.45;
+    color: var(--faq-question-color);
+  }
+
+  .faq__question::-webkit-details-marker { display: none; }
+  .faq__question::marker { content: ''; }
+
+  .faq__question:focus-visible {
+    outline: 2px solid var(--faq-question-color);
+    outline-offset: 2px;
+  }
+
+  /* Two bars crossed into a plus; the upright one swings flat to make a minus. */
+  .faq__icon {
+    position: relative;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--faq-question-color);
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background: currentColor;
+    transform: translate(-50%, -50%);
+    transition: transform 0.25s ease;
+  }
+
+  .faq__icon::before { width: 16px; height: 1.5px; }
+  .faq__icon::after { width: 1.5px; height: 16px; }
+
+  .faq__item[open] .faq__icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .faq__answer {
+    padding: 0 2px 20px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--faq-answer-color);
+  }
+
+  .faq__answer > *:first-child { margin-top: 0; }
+  .faq__answer > *:last-child { margin-bottom: 0; }
+  .faq__answer a { color: inherit; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__icon::before,
+    .faq__icon::after { transition: none; }
+  }
+
+  @media screen and (min-width: 750px) {
+    .faq {
+      padding-top: var(--faq-pad-top);
+      padding-bottom: var(--faq-pad-bottom);
+    }
+
+    .faq__heading {
+      font-size: var(--faq-heading-size);
+      margin-bottom: 30px;
+    }
+
+    .faq__question {
+      padding: 22px 2px;
+      font-size: var(--faq-question-size);
+    }
+
+    .faq__answer { padding-bottom: 24px; }
+  }
+{%- endstyle -%}
+
+<div class="faq">
+  <div class="faq__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="faq__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- if block.settings.question != blank -%}
+        <details
+          class="faq__item"
+          {% if section.settings.one_at_a_time %}name="faq-{{ section.id }}"{% endif %}
+          {% if block.settings.open_by_default %}open{% endif %}
+          {{ block.shopify_attributes }}
+        >
+          <summary class="faq__question">
+            <span>{{ block.settings.question }}</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+
+          {%- if block.settings.answer != blank -%}
+            <div class="faq__answer">{{ block.settings.answer }}</div>
+          {%- endif -%}
+        </details>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "tag": "section",
+  "class": "faq-section",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "POPULAR QUESTIONS"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "one_at_a_time",
+      "label": "Close the others when one opens",
+      "info": "Older browsers ignore this and simply allow several open at once.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Type"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "info": "Mobile scales down from this automatically.",
+      "min": 22,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "question_size",
+      "label": "Question size",
+      "min": 14,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "default": 19
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "info": "Leave empty to sit on the page background.",
+      "default": "rgba(0,0,0,0)"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "question_color",
+      "label": "Question and plus sign",
+      "default": "#1f1f1f"
+    },
+    {
+      "type": "color",
+      "id": "answer_color",
+      "label": "Answer",
+      "default": "#4a4a4a"
+    },
+    {
+      "type": "color",
+      "id": "rule_color",
+      "label": "Divider line",
+      "default": "#e3e3e3"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content width",
+      "min": 600,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 860
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Ask a question here"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Answer it here.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open when the page loads",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "How long will my order take?",
+            "answer": "<p>Your piece is crocheted by hand after you order, so allow 1–3 weeks for crafting, then 7–15 business days for delivery — roughly 3–6 weeks door to door. Larger sizes and multi-piece sets sit at the longer end.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Where do you ship, and what does it cost?",
+            "answer": "<p>The United States, the United Kingdom and Canada. Shipping is free on orders over $49 and $4.99 below that. We don't ship outside these three countries yet.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Will I get a tracking number?",
+            "answer": "<p>Yes — it's emailed to you the moment your order ships. Please allow up to 48 hours for the carrier to start updating it.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Can I get it in time for a birthday or holiday?",
+            "answer": "<p>We can't promise a delivery date at checkout, because every piece is made by hand. Email us your deadline before you order and we'll tell you honestly whether it can be done. If it can't, we'd rather say so than take the order.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Will mine look exactly like the photos?",
+            "answer": "<p>Recognisably the same design, with small differences. Stitch tension, facial expression and colour placement vary from one piece to the next, and yarn dye lots are never identical. That's the mark of handmade work rather than a fault.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What is it made of, and is it safe for young children?",
+            "answer": "<p>Soft cotton yarn, firmly stuffed. Pieces finished with safety eyes contain small parts, so we don't recommend them for children under three without supervision.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do I wash and care for it?",
+            "answer": "<p>Hand wash in cold water, gently reshape while damp, and air dry flat. Avoid wringing — it pulls the stitches out of shape.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Can I return or cancel my order?",
+            "answer": "<p>You have 30 days from delivery to request a return, provided the piece is unused, undamaged and in its original packaging. Cancel within 24 hours of ordering for a full refund. Personalised pieces can't be returned for a change of mind, but anything faulty, damaged or incorrect is always covered — send us a photo and we'll put it right.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
